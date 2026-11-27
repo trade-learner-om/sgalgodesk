@@ -1,0 +1,46 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: sg-algo-desk
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+  r2dbc:
+    url: r2dbc:${DB_URL:}?schema=${DB_SCHEMA}
+    username: ${SPRING_R2DBC_USERNAME:}
+    password: ${SPRING_R2DBC_PASSWORD:}
+  flyway:
+    url: jdbc:${DB_URL:}
+    user: ${SPRING_R2DBC_USERNAME}
+    password: ${SPRING_R2DBC_PASSWORD}
+    locations: classpath:db/migration
+    schemas: ${DB_SCHEMA:}
+    default-schema: ${DB_SCHEMA:}
+    create-schemas: true
+
+mstock:
+  api-base-url: ${MSTOCK_API_BASE_URL:https://api.mstock.trade}
+  ws-base-url: wss://ws.mstock.trade
+  # Fixed egress IP shown in the UI for MStock Primary/Static IP; empty = detect via ipify
+  primary-ip: ${MSTOCK_PRIMARY_IP:152.58.182.129}
+  option-strategy-base-url: ${MSTOCK_OPTION_STRATEGY_BASE_URL:https://optionstrategy.mstock.com}
+
+app:
+  cors-origins: ${FRONTEND_BASE_URL:}
+
+logging:
+  level:
+    root: INFO
+    com.sgalgodesk.desk: DEBUG
+    com.sgalgodesk.desk.application.indicators: DEBUG
+    com.sgalgodesk.desk.adapters.outbound.mstock: DEBUG
+    com.sgalgodesk.desk.spreadfeed: DEBUG
+
+instruments:
+  tradable: ${TRADABLE_INSTRUMENTS:NIFTY}
+  defaults:
+    NIFTY:
+      lot-size: ${NIFTY_LOT_SIZE:65}

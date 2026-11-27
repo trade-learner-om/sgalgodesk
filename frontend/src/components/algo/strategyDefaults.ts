@@ -1,0 +1,85 @@
+import type { AlgoLegConfig, AlgoStrategyConfig } from '../../api/client'
+
+export function defaultLeg(): AlgoLegConfig {
+  return {
+    segment: 'Options',
+    lots: 1,
+    position: 'Sell',
+    optionType: 'CE',
+    expiry: 'Weekly',
+    strikeCriteria: 'ATM',
+    strikeType: 'Strike',
+    strikeParam1: null,
+    strikeParam2: null, // unused for ITM/ATM/OTM ladder
+    targetEnabled: false,
+    targetUnit: 'Points',
+    targetValue: null,
+    slEnabled: false,
+    slUnit: 'Points',
+    slValue: null,
+    trailSlEnabled: false,
+    trailSlUnit: 'Points',
+    trailSlTrigger: null,
+    trailSlMove: null,
+    reentryTgtEnabled: false,
+    reentryTgtMode: 'Immediate',
+    reentryTgtCount: 1,
+    reentrySlEnabled: false,
+    reentrySlMode: 'Immediate',
+    reentrySlCount: 1,
+    rangeBreakoutEnabled: false,
+    rangeBreakoutTime: null,
+    rangeBreakoutDirection: 'High',
+    rangeBreakoutOn: 'Underlying',
+    simpleMomentumEnabled: false,
+    simpleMomentumUnit: 'Points',
+    simpleMomentumValue: null,
+  }
+}
+
+export function defaultConfig(): AlgoStrategyConfig {
+  return {
+    instrument: {
+      index: 'NIFTY',
+      underlyingFrom: 'Cash',
+    },
+    entry: {
+      strategyType: 'Time based',
+      entryTime: '09:20',
+      exitTime: '15:15',
+      noReentryAfterEnabled: false,
+      noReentryAfterTime: '14:30',
+      stopMonitoringAfterEnabled: false,
+      stopMonitoringAfterTime: '15:20',
+    },
+    legwise: {
+      squareOff: 'Partial',
+      trailSlToBreakeven: false,
+      trailSlBreakevenScope: 'All legs',
+    },
+    legs: [defaultLeg()],
+    overall: {
+      overallSlEnabled: false,
+      overallSlType: 'Premium',
+      overallSlValue: null,
+      overallTargetEnabled: false,
+      overallTargetType: 'Premium',
+      overallTargetValue: null,
+      overallMomentumEnabled: false,
+      overallMomentumType: 'Points',
+      overallMomentumValue: null,
+      reentryOnSlEnabled: false,
+      reentryOnSlMode: 'Immediate',
+      reentryOnSlCount: 1,
+      reentryOnTgtEnabled: false,
+      reentryOnTgtMode: 'Immediate',
+      reentryOnTgtCount: 1,
+      trailingEnabled: false,
+      trailingMode: 'Lock',
+      profitReaches: null,
+      lockProfit: null,
+      trailStepProfit: null,
+      trailStepLock: null,
+    },
+  }
+}

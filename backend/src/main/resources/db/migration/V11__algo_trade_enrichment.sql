@@ -1,0 +1,4 @@
+ALTER TABLE algo_strategy_trade ADD COLUMN IF NOT EXISTS lot_size INTEGER;
+ALTER TABLE algo_strategy_trade ADD COLUMN IF NOT EXISTS strike DOUBLE PRECISION;
+ALTER TABLE algo_strategy_trade ADD COLUMN IF NOT EXISTS expiry VARCHAR(32);
+ALTER TABLE algo_strategy_trade ADD COLUMN IF NOT EXISTS option_type VARCHAR(8);
