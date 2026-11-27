@@ -1,15 +1,30 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { Suspense, lazy, useEffect, useMemo, useRef, useState } from 'react'
 import { api, type MeResponse, type UnderlyingHit } from '../api/client'
 import { useMarketFeed } from '../hooks/useMarketFeed'
-import { AlgoExecutionWorkspace } from './algo/AlgoExecutionWorkspace'
 import { BrokersManageModal } from './BrokersManageModal'
-import { RunningPositions } from './RunningPositions'
-import { StrategyExecution } from './StrategyExecution'
-import { StrategyWorkspace } from './StrategyWorkspace'
 import { ThemeToggle } from './ThemeToggle'
+import { WorkspaceLoader } from './ui/Primitives'
+
+const StrategyWorkspace = lazy(() =>
+  import('./StrategyWorkspace').then((m) => ({ default: m.StrategyWorkspace })),
+)
+const AlgoExecutionWorkspace = lazy(() =>
+  import('./algo/AlgoExecutionWorkspace').then((m) => ({ default: m.AlgoExecutionWorkspace })),
+)
+const DeltaDriftStrangleWorkspace = lazy(() =>
+  import('./dds/DeltaDriftStrangleWorkspace').then((m) => ({
+    default: m.DeltaDriftStrangleWorkspace,
+  })),
+)
+const RunningPositions = lazy(() =>
+  import('./RunningPositions').then((m) => ({ default: m.RunningPositions })),
+)
+const StrategyExecution = lazy(() =>
+  import('./StrategyExecution').then((m) => ({ default: m.StrategyExecution })),
+)
 
 type TabId = 'builder' | 'positions' | 'execution'
-type BuilderSubTab = 'manual' | 'algo'
+type BuilderSubTab = 'manual' | 'algo' | 'deltaDrift'
 
 type Props = {
   me: MeResponse
@@ -20,9 +35,9 @@ type Props = {
 }
 
 const TABS: { id: TabId; label: string }[] = [
-  { id: 'builder', label: 'Strategy Builder' },
   { id: 'positions', label: 'Positions' },
-  { id: 'execution', label: 'Execution' },
+  { id: 'builder', label: 'Strategy Builder' },
+  { id: 'execution', label: 'Signals' },
 ]
 
 const FALLBACK_BENCHMARKS: UnderlyingHit[] = [
@@ -183,103 +198,50 @@ export function AppShell({ me, onLogout, onTokenExpired, onMeUpdated, onUnauthen
   })
 
   return (
-    <div className="flex h-screen w-full flex-col overflow-hidden bg-[#F6F8FB] dark:bg-[#070A0F]">
-      <header className="shrink-0 border-b border-slate-200/80 bg-white/95 backdrop-blur-md dark:border-slate-800/80 dark:bg-[#0D1119]/95">
+    <div className="flex h-screen w-full flex-col overflow-hidden bg-[#F5F5F2] dark:bg-[#0B0E14]">
+      <header className="shrink-0 border-b border-stone-200/80 bg-white/90 backdrop-blur-md dark:border-slate-800/80 dark:bg-[#121721]/90">
         <div className="flex w-full flex-wrap items-center justify-between gap-2 px-3 py-2 lg:px-4">
-          {/* Left: Brand + Navigation */}
-          <div className="flex items-center gap-3 sm:gap-4">
+          {/* Left: Brand + Primary Navigation */}
+          <div className="flex flex-wrap items-center gap-2.5 sm:gap-4">
             <div className="flex items-center gap-2.5">
-              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-blue-600 to-indigo-600 text-xs font-bold tracking-tight text-white shadow-sm shadow-blue-500/20">
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-teal-700 to-slate-800 text-xs font-bold tracking-tight text-white shadow-xs dark:from-teal-500 dark:to-teal-700">
                 SG
               </div>
               <div className="hidden sm:block">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-400 dark:text-slate-500">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-stone-400 dark:text-slate-500">
                   Algo Desk
                 </p>
-                <h1 className="text-xs font-semibold leading-none text-slate-900 dark:text-slate-100">
+                <h1 className="text-xs font-semibold leading-none text-stone-900 dark:text-slate-100">
                   F&amp;O Terminal
                 </h1>
               </div>
             </div>
 
-            <nav className="flex items-center gap-1 rounded-xl bg-slate-100/90 p-1 dark:bg-[#070A0F]">
+            <nav
+              aria-label="Primary navigation"
+              className="flex items-center gap-1 rounded-xl bg-stone-100/90 p-1 dark:bg-[#0B0E14]"
+            >
               {TABS.map((item) => {
                 const active = tab === item.id
                 const showPnl = item.id === 'positions' && positionsLivePnl != null
-                const tabBtnClass = `flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-semibold transition ${
-                  active
-                    ? 'bg-white text-slate-900 shadow-sm dark:bg-[#131924] dark:text-slate-100'
-                    : 'text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200'
-                }`
-
-                if (item.id === 'builder') {
-                  return (
-                    <div key={item.id} className="group relative">
-                      <button
-                        type="button"
-                        onClick={() => setTab('builder')}
-                        className={tabBtnClass}
-                      >
-                        <span>{item.label}</span>
-                        <svg
-                          viewBox="0 0 12 12"
-                          className="h-2.5 w-2.5 opacity-60"
-                          fill="currentColor"
-                          aria-hidden
-                        >
-                          <path d="M2.5 4.5 6 8l3.5-3.5" stroke="currentColor" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
-                        </svg>
-                      </button>
-                      <div
-                        className="invisible absolute left-0 top-full z-30 min-w-[9.5rem] pt-1 opacity-0 transition group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100"
-                      >
-                        <div className="rounded-xl border border-slate-200/90 bg-white p-1 shadow-lg dark:border-slate-700 dark:bg-[#131924]">
-                          {(
-                            [
-                              { id: 'manual' as const, label: 'Manual' },
-                              { id: 'algo' as const, label: 'Execution' },
-                            ] as const
-                          ).map((sub) => {
-                            const subActive =
-                              tab === 'builder' && builderSubTab === sub.id
-                            return (
-                              <button
-                                key={sub.id}
-                                type="button"
-                                onClick={() => {
-                                  setTab('builder')
-                                  setBuilderSubTab(sub.id)
-                                }}
-                                className={`flex w-full items-center rounded-lg px-2.5 py-1.5 text-left text-xs font-semibold transition ${
-                                  subActive
-                                    ? 'bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900'
-                                    : 'text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800'
-                                }`}
-                              >
-                                {sub.label}
-                              </button>
-                            )
-                          })}
-                        </div>
-                      </div>
-                    </div>
-                  )
-                }
-
                 return (
                   <button
                     key={item.id}
                     type="button"
                     onClick={() => setTab(item.id)}
-                    className={tabBtnClass}
+                    className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all duration-200 ${
+                      active
+                        ? 'bg-white text-stone-900 shadow-xs dark:bg-[#181F2C] dark:text-slate-100'
+                        : 'text-stone-500 hover:text-stone-900 dark:text-slate-400 dark:hover:text-slate-200'
+                    }`}
                   >
                     <span>{item.label}</span>
                     {showPnl && (
                       <span
                         className={`font-num rounded px-1.5 py-0.5 text-[10px] font-semibold ${
                           positionsLivePnl >= 0
-                            ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400'
-                            : 'bg-rose-500/15 text-rose-600 dark:text-rose-400'
+                            ? 'bg-emerald-600/10 text-emerald-700 dark:bg-emerald-400/15 dark:text-emerald-300'
+                            : 'bg-rose-600/10 text-rose-700 dark:bg-rose-400/15 dark:text-rose-300'
                         }`}
                       >
                         {positionsLivePnl >= 0 ? '+' : ''}
@@ -290,11 +252,45 @@ export function AppShell({ me, onLogout, onTokenExpired, onMeUpdated, onUnauthen
                 )
               })}
             </nav>
+
+            {tab === 'builder' && (
+              <div
+                role="tablist"
+                aria-label="Strategy Builder mode"
+                className="animate-desk-in flex items-center gap-1 rounded-xl border border-stone-200/80 bg-stone-50/90 p-0.5 dark:border-slate-800 dark:bg-[#0B0E14]"
+              >
+                {(
+                  [
+                    { id: 'manual' as const, label: 'Manual' },
+                    { id: 'algo' as const, label: 'Execution' },
+                    { id: 'deltaDrift' as const, label: 'Delta Drift' },
+                  ] as const
+                ).map((sub) => {
+                  const subActive = builderSubTab === sub.id
+                  return (
+                    <button
+                      key={sub.id}
+                      type="button"
+                      role="tab"
+                      aria-selected={subActive}
+                      onClick={() => setBuilderSubTab(sub.id)}
+                      className={`rounded-lg px-2.5 py-1 text-xs font-semibold transition-all duration-200 ${
+                        subActive
+                          ? 'bg-teal-700 text-white shadow-xs dark:bg-teal-600'
+                          : 'text-stone-600 hover:text-stone-900 dark:text-slate-400 dark:hover:text-slate-100'
+                      }`}
+                    >
+                      {sub.label}
+                    </button>
+                  )
+                })}
+              </div>
+            )}
           </div>
 
-          {/* Center/Right: Live Benchmarks + Broker + User */}
+          {/* Right: Live Benchmarks + Broker + Theme + User */}
           <div className="flex flex-wrap items-center justify-end gap-2">
-            <div className="hidden items-center gap-1.5 xl:flex">
+            <div className="hidden items-center gap-1.5 lg:flex">
               {benchmarks.map((bench) => {
                 const ltp = prices[bench.instrumentKey]
                 const close = closes[bench.instrumentKey]
@@ -302,21 +298,21 @@ export function AppShell({ me, onLogout, onTokenExpired, onMeUpdated, onUnauthen
                 return (
                   <div
                     key={bench.instrumentKey}
-                    className="flex items-center gap-1.5 rounded-lg border border-slate-200/80 bg-slate-50/80 px-2.5 py-1 text-xs dark:border-slate-800 dark:bg-[#131924]"
+                    className="flex items-center gap-1.5 rounded-lg border border-stone-200/80 bg-stone-50/80 px-2.5 py-1 text-xs transition-colors dark:border-slate-800 dark:bg-[#171D29]"
                   >
-                    <span className="font-semibold text-slate-700 dark:text-slate-200">
+                    <span className="font-semibold text-stone-700 dark:text-slate-200">
                       {bench.tradingSymbol}
                     </span>
-                    <span className="font-num font-medium text-slate-900 dark:text-slate-100">
+                    <span className="font-num font-medium text-stone-900 dark:text-slate-100">
                       {formatPrice(ltp)}
                     </span>
                     <span
                       className={`font-num text-[11px] font-medium ${
                         pct == null
-                          ? 'text-slate-400'
+                          ? 'text-stone-400 dark:text-slate-500'
                           : pct >= 0
-                            ? 'text-emerald-600 dark:text-emerald-400'
-                            : 'text-rose-600 dark:text-rose-400'
+                            ? 'text-emerald-700 dark:text-emerald-400'
+                            : 'text-rose-700 dark:text-rose-400'
                       }`}
                     >
                       {formatPct(pct)}
@@ -330,19 +326,19 @@ export function AppShell({ me, onLogout, onTokenExpired, onMeUpdated, onUnauthen
               type="button"
               onClick={() => setBrokersOpen(true)}
               title="Manage broker connection"
-              className={`inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs font-semibold transition ${
+              className={`inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs font-semibold transition-all duration-200 ${
                 mstockLinked
-                  ? 'border-emerald-200 bg-emerald-50/70 text-emerald-700 hover:bg-emerald-100/70 dark:border-emerald-900/60 dark:bg-emerald-950/30 dark:text-emerald-300 dark:hover:bg-emerald-950/50'
-                  : 'border-amber-200 bg-amber-50/70 text-amber-700 hover:bg-amber-100/70 dark:border-amber-900/60 dark:bg-amber-950/30 dark:text-amber-300'
+                  ? 'border-teal-200 bg-teal-50/80 text-teal-800 hover:bg-teal-100/70 dark:border-teal-900/60 dark:bg-teal-950/30 dark:text-teal-300 dark:hover:bg-teal-950/50'
+                  : 'border-amber-200 bg-amber-50/80 text-amber-800 hover:bg-amber-100/70 dark:border-amber-900/60 dark:bg-amber-950/30 dark:text-amber-300'
               }`}
             >
               <span className="relative flex h-2 w-2">
                 {mstockLinked && (
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-teal-400 opacity-75" />
                 )}
                 <span
                   className={`relative inline-flex h-2 w-2 rounded-full ${
-                    mstockLinked ? 'bg-emerald-500' : 'bg-amber-500'
+                    mstockLinked ? 'bg-teal-600 dark:bg-teal-400' : 'bg-amber-500'
                   }`}
                 />
               </span>
@@ -352,8 +348,8 @@ export function AppShell({ me, onLogout, onTokenExpired, onMeUpdated, onUnauthen
             <ThemeToggle />
 
             {me.userName && (
-              <div className="hidden items-center gap-1.5 rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1.5 text-xs font-medium text-slate-700 sm:inline-flex dark:border-slate-800 dark:bg-[#131924] dark:text-slate-200">
-                <span className="h-1.5 w-1.5 rounded-full bg-blue-500" />
+              <div className="hidden items-center gap-1.5 rounded-lg border border-stone-200 bg-stone-50 px-2.5 py-1.5 text-xs font-medium text-stone-700 sm:inline-flex dark:border-slate-800 dark:bg-[#171D29] dark:text-slate-200">
+                <span className="h-1.5 w-1.5 rounded-full bg-teal-600 dark:bg-teal-400" />
                 <span className="max-w-[110px] truncate">{me.userName}</span>
               </div>
             )}
@@ -362,7 +358,7 @@ export function AppShell({ me, onLogout, onTokenExpired, onMeUpdated, onUnauthen
               type="button"
               onClick={onLogout}
               title="Log out"
-              className="rounded-lg border border-slate-200 px-2.5 py-1.5 text-xs font-medium text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 dark:border-slate-800 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-100"
+              className="rounded-lg border border-stone-200 px-2.5 py-1.5 text-xs font-medium text-stone-500 transition hover:bg-stone-100 hover:text-stone-900 dark:border-slate-800 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-100"
             >
               Log out
             </button>
@@ -371,38 +367,44 @@ export function AppShell({ me, onLogout, onTokenExpired, onMeUpdated, onUnauthen
       </header>
 
       <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
-        {tab === 'builder' && (
-          <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
-            {builderSubTab === 'manual' ? (
-              <StrategyWorkspace
-                me={me}
-                onLogout={onLogout}
-                onTokenExpired={onTokenExpired}
-                hideChrome
-                seedUnderlyingKey={seedUnderlyingKey}
-              />
-            ) : (
-              <AlgoExecutionWorkspace />
-            )}
+        <Suspense fallback={<WorkspaceLoader />}>
+          {tab === 'builder' && (
+            <div key={`builder-${builderSubTab}`} className="animate-desk-in flex min-h-0 flex-1 flex-col overflow-hidden">
+              {builderSubTab === 'manual' ? (
+                <StrategyWorkspace
+                  me={me}
+                  onLogout={onLogout}
+                  onTokenExpired={onTokenExpired}
+                  hideChrome
+                  seedUnderlyingKey={seedUnderlyingKey}
+                />
+              ) : builderSubTab === 'algo' ? (
+                <AlgoExecutionWorkspace />
+              ) : (
+                <DeltaDriftStrangleWorkspace />
+              )}
+            </div>
+          )}
+          <div className={tab === 'positions' ? 'animate-desk-in flex min-h-0 flex-1 flex-col overflow-hidden' : 'hidden'}>
+            <RunningPositions
+              onTokenExpired={onTokenExpired}
+              onLivePnlChange={setPositionsLivePnl}
+            />
           </div>
-        )}
-        <div className={tab === 'positions' ? 'flex min-h-0 flex-1 flex-col overflow-hidden' : 'hidden'}>
-          <RunningPositions
-            onTokenExpired={onTokenExpired}
-            onLivePnlChange={setPositionsLivePnl}
-          />
-        </div>
-        {tab === 'execution' && (
-          <StrategyExecution
-            onTokenExpired={onTokenExpired}
-            onCreateOwn={(instrumentKey) => {
-              setSeedUnderlyingKey(instrumentKey)
-              setTab('builder')
-              setBuilderSubTab('manual')
-            }}
-            onExecuted={() => setTab('positions')}
-          />
-        )}
+          {tab === 'execution' && (
+            <div className="animate-desk-in flex min-h-0 flex-1 flex-col overflow-hidden">
+              <StrategyExecution
+                onTokenExpired={onTokenExpired}
+                onCreateOwn={(instrumentKey) => {
+                  setSeedUnderlyingKey(instrumentKey)
+                  setTab('builder')
+                  setBuilderSubTab('manual')
+                }}
+                onExecuted={() => setTab('positions')}
+              />
+            </div>
+          )}
+        </Suspense>
       </div>
 
       {brokersOpen && (

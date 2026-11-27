@@ -395,15 +395,15 @@ export const PayoffChart = memo(function PayoffChart({
       ? Math.abs(summary.maxProfit / summary.maxLoss)
       : null
 
-  const axisStroke = isDark ? '#1e293b' : '#e2e8f0'
-  const zeroStroke = isDark ? '#64748b' : '#94a3b8'
-  const expiryStroke = isDark ? '#2dd4bf' : '#0d9488'
-  const t0Stroke = isDark ? '#fb923c' : '#ea580c'
-  const spotStroke = isDark ? '#34d399' : '#059669'
-  const sellStroke = isDark ? '#64748b' : '#94a3b8'
-  const hoverStroke = isDark ? '#94a3b8' : '#64748b'
-  const beStroke = isDark ? '#475569' : '#cbd5e1'
-  const textFill = isDark ? '#94a3b8' : '#64748b'
+  const axisStroke = isDark ? '#1a2230' : '#e2e8f0'
+  const zeroStroke = isDark ? '#475569' : '#94a3b8'
+  const expiryStroke = isDark ? '#3fa7a3' : '#0d9488'
+  const t0Stroke = isDark ? '#e59956' : '#ea580c'
+  const spotStroke = isDark ? '#4ade80' : '#059669'
+  const sellStroke = isDark ? '#475569' : '#94a3b8'
+  const hoverStroke = isDark ? '#64748b' : '#64748b'
+  const beStroke = isDark ? '#334155' : '#cbd5e1'
+  const textFill = isDark ? '#64748b' : '#64748b'
 
   const tooltipStyle = (() => {
     if (!pointer || !plotRef.current || !hover) {
@@ -503,7 +503,7 @@ export const PayoffChart = memo(function PayoffChart({
 
       <div
         ref={plotRef}
-        className="relative min-h-[220px] flex-1 overflow-hidden rounded-xl border border-slate-100 bg-slate-50/40 dark:border-slate-800/80 dark:bg-[#070A0F]/60"
+        className="relative min-h-[220px] flex-1 overflow-hidden rounded-xl border border-stone-200/70 bg-stone-50/40 dark:border-slate-800/80 dark:bg-[#0B0E14]/90"
       >
         {hover && tooltipStyle ? (
           <div
@@ -575,12 +575,12 @@ export const PayoffChart = memo(function PayoffChart({
               <rect x={pad.left} y={pad.top} width={innerW} height={innerH} />
             </clipPath>
             <linearGradient id="profitFill" x1="0" x2="0" y1="0" y2="1">
-              <stop offset="0%" stopColor="#10b981" stopOpacity={isDark ? 0.35 : 0.28} />
-              <stop offset="100%" stopColor="#10b981" stopOpacity="0.04" />
+              <stop offset="0%" stopColor="#10b981" stopOpacity={isDark ? 0.16 : 0.24} />
+              <stop offset="100%" stopColor="#10b981" stopOpacity="0.02" />
             </linearGradient>
             <linearGradient id="lossFill" x1="0" x2="0" y1="0" y2="1">
-              <stop offset="0%" stopColor="#f43f5e" stopOpacity="0.04" />
-              <stop offset="100%" stopColor="#f43f5e" stopOpacity={isDark ? 0.35 : 0.28} />
+              <stop offset="0%" stopColor="#f43f5e" stopOpacity="0.02" />
+              <stop offset="100%" stopColor="#f43f5e" stopOpacity={isDark ? 0.16 : 0.24} />
             </linearGradient>
           </defs>
 
@@ -592,8 +592,10 @@ export const PayoffChart = memo(function PayoffChart({
                 y1={yScale(tick)}
                 y2={yScale(tick)}
                 stroke={axisStroke}
+                strokeOpacity={isDark ? 0.4 : 0.9}
                 strokeDasharray="3 4"
                 strokeWidth="1"
+                vectorEffect="non-scaling-stroke"
               />
               <text
                 x={pad.left - 8}
@@ -615,8 +617,10 @@ export const PayoffChart = memo(function PayoffChart({
                 y1={pad.top}
                 y2={height - pad.bottom}
                 stroke={axisStroke}
+                strokeOpacity={isDark ? 0.4 : 0.9}
                 strokeDasharray="2 4"
                 strokeWidth="1"
+                vectorEffect="non-scaling-stroke"
               />
               <text
                 x={xScale(tick)}

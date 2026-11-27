@@ -37,7 +37,11 @@ function isStrikeLadder(criteria: string | null | undefined): boolean {
 }
 
 function FieldLabel({ children }: { children: ReactNode }) {
-  return <span className="mb-1 block text-[11px] font-medium text-slate-500">{children}</span>
+  return (
+    <span className="mb-1 block text-[11px] font-medium text-stone-500 dark:text-slate-400">
+      {children}
+    </span>
+  )
 }
 
 function Select({
@@ -56,7 +60,7 @@ function Select({
       value={value}
       disabled={disabled}
       onChange={(e) => onChange(e.target.value)}
-      className="w-full rounded-lg border border-slate-200 bg-white px-2.5 py-2 text-sm disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-[#0B0F17] dark:text-slate-100"
+      className="h-9 w-full rounded-lg border border-stone-200 bg-white px-2.5 text-xs font-medium text-stone-900 transition disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-[#0B0E14] dark:text-slate-100"
     >
       {options.map((o) => (
         <option key={o} value={o}>
@@ -84,7 +88,7 @@ function TextInput({
       value={value}
       placeholder={placeholder}
       onChange={(e) => onChange(e.target.value)}
-      className="w-full rounded-lg border border-slate-200 bg-white px-2.5 py-2 text-sm dark:border-slate-700 dark:bg-[#0B0F17] dark:text-slate-100"
+      className="h-9 w-full rounded-lg border border-stone-200 bg-white px-2.5 text-xs font-medium text-stone-900 transition dark:border-slate-700 dark:bg-[#0B0E14] dark:text-slate-100"
     />
   )
 }
@@ -120,7 +124,7 @@ function TimeInput({
       max={max}
       step={60}
       onChange={(e) => onChange(clampTime(e.target.value, min, max))}
-      className="w-full rounded-lg border border-slate-200 bg-white px-2.5 py-2 text-sm dark:border-slate-700 dark:bg-[#0B0F17] dark:text-slate-100"
+      className="h-9 w-full rounded-lg border border-stone-200 bg-white px-2.5 font-num text-xs font-medium text-stone-900 transition dark:border-slate-700 dark:bg-[#0B0E14] dark:text-slate-100"
     />
   )
 }
@@ -146,7 +150,7 @@ function NumberInput({
         const raw = e.target.value
         onChange(raw === '' ? null : Number(raw))
       }}
-      className="w-full rounded-lg border border-slate-200 bg-white px-2.5 py-2 text-sm disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-[#0B0F17] dark:text-slate-100"
+      className="h-9 w-full rounded-lg border border-stone-200 bg-white px-2.5 font-num text-xs font-medium text-stone-900 transition disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-[#0B0E14] dark:text-slate-100"
     />
   )
 }
@@ -166,15 +170,15 @@ function Switch({
       role="switch"
       aria-checked={checked}
       onClick={() => onChange(!checked)}
-      className="inline-flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-200"
+      className="inline-flex items-center gap-2 text-xs font-semibold text-stone-700 dark:text-slate-200"
     >
       <span
-        className={`relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors ${
-          checked ? 'bg-blue-600' : 'bg-slate-300 dark:bg-slate-600'
+        className={`relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors duration-200 ${
+          checked ? 'bg-teal-700 dark:bg-teal-500' : 'bg-stone-300 dark:bg-slate-700'
         }`}
       >
         <span
-          className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition ${
+          className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform duration-200 ${
             checked ? 'translate-x-4' : 'translate-x-0.5'
           }`}
         />
@@ -186,8 +190,10 @@ function Switch({
 
 function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
-    <section className="space-y-3 rounded-xl border border-slate-200/90 bg-slate-50/60 p-4 dark:border-slate-800 dark:bg-[#0D1119]">
-      <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-500">{title}</h3>
+    <section className="animate-desk-in space-y-3 rounded-xl border border-stone-200/90 bg-white p-4 shadow-xs dark:border-slate-800 dark:bg-[#121721]">
+      <h3 className="text-[11px] font-semibold uppercase tracking-wider text-stone-500 dark:text-slate-400">
+        {title}
+      </h3>
       {children}
     </section>
   )
@@ -207,16 +213,16 @@ function LegRow({
   onRemove: () => void
 }) {
   return (
-    <div className="rounded-xl border border-slate-200/90 bg-white p-3 dark:border-slate-800 dark:bg-[#0B0F17]">
-      <div className="mb-2 flex items-center justify-between">
-        <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+    <div className="rounded-xl border border-stone-200/90 bg-stone-50/60 p-3.5 transition hover:border-stone-300 dark:border-slate-800 dark:bg-[#171D29]/70 dark:hover:border-slate-700">
+      <div className="mb-2.5 flex items-center justify-between">
+        <span className="text-[11px] font-semibold uppercase tracking-wide text-stone-500 dark:text-slate-400">
           Leg {index + 1}
         </span>
         {canRemove && (
           <button
             type="button"
             onClick={onRemove}
-            className="text-xs font-medium text-rose-600 hover:text-rose-500"
+            className="text-xs font-medium text-rose-600 transition hover:text-rose-500 dark:text-rose-400"
           >
             Remove
           </button>
@@ -408,11 +414,11 @@ export function StrategyCreator({ initial, onClose, onSaved }: Props) {
   return (
     <form
       onSubmit={(e) => void persist(e)}
-      className="flex min-h-0 flex-1 flex-col overflow-hidden"
+      className="animate-desk-in flex min-h-0 flex-1 flex-col overflow-hidden bg-[#F5F5F2] dark:bg-[#0B0E14]"
     >
-      <div className="sticky top-0 z-10 flex items-center justify-between gap-3 border-b border-slate-200/80 bg-white/95 px-4 py-3 backdrop-blur dark:border-slate-800/80 dark:bg-[#0B0F17]/95">
+      <div className="sticky top-0 z-10 flex items-center justify-between gap-3 border-b border-stone-200/80 bg-white/95 px-4 py-3 backdrop-blur dark:border-slate-800/80 dark:bg-[#121721]/95">
         <div className="min-w-0">
-          <p className="text-[11px] font-medium uppercase tracking-wider text-slate-500">
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-teal-700 dark:text-teal-400">
             {initial ? 'Edit strategy' : 'Create strategy'}
           </p>
           <StrategyTitle
@@ -426,122 +432,124 @@ export function StrategyCreator({ initial, onClose, onSaved }: Props) {
           <button
             type="button"
             onClick={onClose}
-            className="rounded-lg border border-slate-200 px-3 py-2 text-xs font-medium text-slate-700 dark:border-slate-700 dark:text-slate-200"
+            className="rounded-lg border border-stone-200 bg-white px-3.5 py-2 text-xs font-medium text-stone-700 transition hover:bg-stone-50 dark:border-slate-700 dark:bg-[#171D29] dark:text-slate-200 dark:hover:bg-slate-800"
           >
             Cancel
           </button>
           <button
             type="submit"
             disabled={busy}
-            className="rounded-lg bg-blue-600 px-3 py-2 text-xs font-semibold text-white disabled:opacity-60"
+            className="rounded-lg bg-teal-700 px-4 py-2 text-xs font-semibold text-white shadow-xs transition hover:bg-teal-600 disabled:opacity-60 dark:bg-teal-600 dark:hover:bg-teal-500"
           >
-            {busy ? 'Saving…' : 'Save'}
+            {busy ? 'Saving…' : 'Save Strategy'}
           </button>
         </div>
       </div>
 
-      <div className="min-h-0 flex-1 space-y-4 overflow-auto p-4">
+      <div className="desk-scroll min-h-0 flex-1 space-y-4 overflow-auto p-4">
         {error && (
-          <p className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700 dark:border-rose-900/50 dark:bg-rose-950/30 dark:text-rose-300">
+          <p className="rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-xs font-medium text-rose-700 dark:border-rose-900/50 dark:bg-rose-950/30 dark:text-rose-300">
             {error}
           </p>
         )}
 
-        <Section title="Basics">
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            <label className="sm:col-span-2">
-              <FieldLabel>Name</FieldLabel>
-              <TextInput value={name} onChange={setName} placeholder="My Special Strategy" />
-            </label>
-            <label>
-              <FieldLabel>Index</FieldLabel>
-              <Select
-                value={config.instrument.index}
-                onChange={(v) =>
-                  setConfig((c) => ({
-                    ...c,
-                    instrument: { ...c.instrument, index: v },
-                  }))
-                }
-                options={indexSelectOptions}
-              />
-            </label>
-            <label>
-              <FieldLabel>Underlying</FieldLabel>
-              <Select
-                value={config.instrument.underlyingFrom}
-                onChange={(v) =>
-                  setConfig((c) => ({
-                    ...c,
-                    instrument: { ...c.instrument, underlyingFrom: v },
-                  }))
-                }
-                options={UNDERLYING_FROM}
-              />
-            </label>
-          </div>
-        </Section>
+        <div className="grid gap-4 lg:grid-cols-2">
+          <Section title="Basics">
+            <div className="grid gap-3 sm:grid-cols-2">
+              <label className="sm:col-span-2">
+                <FieldLabel>Strategy Name</FieldLabel>
+                <TextInput value={name} onChange={setName} placeholder="My Special Strategy" />
+              </label>
+              <label>
+                <FieldLabel>Index</FieldLabel>
+                <Select
+                  value={config.instrument.index}
+                  onChange={(v) =>
+                    setConfig((c) => ({
+                      ...c,
+                      instrument: { ...c.instrument, index: v },
+                    }))
+                  }
+                  options={indexSelectOptions}
+                />
+              </label>
+              <label>
+                <FieldLabel>Underlying</FieldLabel>
+                <Select
+                  value={config.instrument.underlyingFrom}
+                  onChange={(v) =>
+                    setConfig((c) => ({
+                      ...c,
+                      instrument: { ...c.instrument, underlyingFrom: v },
+                    }))
+                  }
+                  options={UNDERLYING_FROM}
+                />
+              </label>
+            </div>
+          </Section>
 
-        <Section title="Entry / exit">
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            <label>
-              <FieldLabel>Strategy type</FieldLabel>
-              <Select
-                value={config.entry.strategyType}
-                onChange={(v) =>
-                  setConfig((c) => ({
-                    ...c,
-                    entry: { ...c.entry, strategyType: v },
-                  }))
-                }
-                options={STRATEGY_TYPES}
-              />
-            </label>
-            <label>
-              <FieldLabel>Entry time</FieldLabel>
-              <TimeInput
-                value={config.entry.entryTime}
-                min={ENTRY_TIME_MIN}
-                max={ENTRY_TIME_MAX}
-                onChange={(v) =>
-                  setConfig((c) => ({
-                    ...c,
-                    entry: { ...c.entry, entryTime: v },
-                  }))
-                }
-              />
-            </label>
-            <label>
-              <FieldLabel>Exit time</FieldLabel>
-              <TimeInput
-                value={config.entry.exitTime}
-                min={EXIT_TIME_MIN}
-                max={EXIT_TIME_MAX}
-                onChange={(v) =>
-                  setConfig((c) => ({
-                    ...c,
-                    entry: { ...c.entry, exitTime: v },
-                  }))
-                }
-              />
-            </label>
-            <label>
-              <FieldLabel>Square off</FieldLabel>
-              <Select
-                value={config.legwise.squareOff}
-                onChange={(v) =>
-                  setConfig((c) => ({
-                    ...c,
-                    legwise: { ...c.legwise, squareOff: v },
-                  }))
-                }
-                options={SQUARE_OFF}
-              />
-            </label>
-          </div>
-        </Section>
+          <Section title="Entry / Exit">
+            <div className="grid gap-3 sm:grid-cols-2">
+              <label>
+                <FieldLabel>Strategy type</FieldLabel>
+                <Select
+                  value={config.entry.strategyType}
+                  onChange={(v) =>
+                    setConfig((c) => ({
+                      ...c,
+                      entry: { ...c.entry, strategyType: v },
+                    }))
+                  }
+                  options={STRATEGY_TYPES}
+                />
+              </label>
+              <label>
+                <FieldLabel>Square off</FieldLabel>
+                <Select
+                  value={config.legwise.squareOff}
+                  onChange={(v) =>
+                    setConfig((c) => ({
+                      ...c,
+                      legwise: { ...c.legwise, squareOff: v },
+                    }))
+                  }
+                  options={SQUARE_OFF}
+                />
+              </label>
+              <label>
+                <FieldLabel>Entry time</FieldLabel>
+                <TimeInput
+                  value={config.entry.entryTime}
+                  min={ENTRY_TIME_MIN}
+                  max={ENTRY_TIME_MAX}
+                  onChange={(v) =>
+                    setConfig((c) => ({
+                      ...c,
+                      entry: { ...c.entry, entryTime: v },
+                    }))
+                  }
+                />
+              </label>
+              <label>
+                <FieldLabel>Exit time</FieldLabel>
+                <TimeInput
+                  value={config.entry.exitTime}
+                  min={EXIT_TIME_MIN}
+                  max={EXIT_TIME_MAX}
+                  onChange={(v) =>
+                    setConfig((c) => ({
+                      ...c,
+                      entry: { ...c.entry, exitTime: v },
+                    }))
+                  }
+                />
+              </label>
+            </div>
+          </Section>
+        </div>
 
-        <Section title="Legs">
+        <Section title={`Legs (${config.legs.length})`}>
           <div className="space-y-3">
             {config.legs.map((leg, i) => (
               <LegRow
@@ -563,16 +571,16 @@ export function StrategyCreator({ initial, onClose, onSaved }: Props) {
               onClick={() =>
                 setConfig((c) => ({ ...c, legs: [...c.legs, defaultLeg()] }))
               }
-              className="w-full rounded-xl border border-dashed border-slate-300 px-3 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-50 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-800/50"
+              className="w-full rounded-xl border border-dashed border-stone-300 px-3 py-2.5 text-xs font-semibold text-stone-600 transition hover:border-teal-600 hover:bg-teal-50/40 hover:text-teal-800 dark:border-slate-700 dark:text-slate-300 dark:hover:border-teal-500/60 dark:hover:bg-teal-950/20 dark:hover:text-teal-300"
             >
               + Add leg
             </button>
           </div>
         </Section>
 
-        <Section title="Overall risk">
+        <Section title="Overall Risk">
           <div className="grid gap-4 sm:grid-cols-2">
-            <div className="space-y-2 rounded-lg border border-slate-200/80 p-3 dark:border-slate-800">
+            <div className="space-y-2.5 rounded-xl border border-stone-200/80 bg-stone-50/50 p-3.5 dark:border-slate-800 dark:bg-[#171D29]/60">
               <Switch
                 checked={config.overall.overallSlEnabled}
                 onChange={(v) =>
@@ -581,7 +589,7 @@ export function StrategyCreator({ initial, onClose, onSaved }: Props) {
                     overall: { ...c.overall, overallSlEnabled: v },
                   }))
                 }
-                label="Overall SL"
+                label="Overall Stop Loss"
               />
               <div className="grid grid-cols-2 gap-2">
                 <Select
@@ -607,7 +615,7 @@ export function StrategyCreator({ initial, onClose, onSaved }: Props) {
                 />
               </div>
             </div>
-            <div className="space-y-2 rounded-lg border border-slate-200/80 p-3 dark:border-slate-800">
+            <div className="space-y-2.5 rounded-xl border border-stone-200/80 bg-stone-50/50 p-3.5 dark:border-slate-800 dark:bg-[#171D29]/60">
               <Switch
                 checked={config.overall.overallTargetEnabled}
                 onChange={(v) =>
@@ -616,7 +624,7 @@ export function StrategyCreator({ initial, onClose, onSaved }: Props) {
                     overall: { ...c.overall, overallTargetEnabled: v },
                   }))
                 }
-                label="Overall target"
+                label="Overall Target"
               />
               <div className="grid grid-cols-2 gap-2">
                 <Select

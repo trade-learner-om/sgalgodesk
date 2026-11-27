@@ -11,7 +11,9 @@ import {
 } from '../../api/client'
 import { useMarketFeed } from '../../hooks/useMarketFeed'
 import type { StrategyLeg } from '../../payoff/payoff'
+import { useFeedback } from '../Feedback'
 import { PayoffChart } from '../PayoffChart'
+import { EmptyState, StatTile } from '../ui/Primitives'
 import {
   algoTradeToLeg,
   distanceToSl,
@@ -27,6 +29,7 @@ import {
 import { classifyAlgoStructure } from './algoStructureClassify'
 import { StrategyTitle } from './BiasIcon'
 import { StrategyCreator } from './StrategyCreator'
+import { StrategyLifecycleDrawer } from './StrategyLifecycleDrawer'
 import {
   formatIstClock,
   formatLifecycleState,
@@ -81,7 +84,7 @@ function eventTone(type: string): string {
 function LegReadonlyRow({ leg, index }: { leg: AlgoLegConfig; index: number }) {
   const sell = (leg.position ?? 'Sell').toUpperCase().startsWith('S')
   return (
-    <div className="flex flex-wrap items-center gap-2 rounded-lg border border-slate-200/80 bg-white px-3 py-2.5 dark:border-slate-800 dark:bg-[#0B0F17]">
+    <div className="flex flex-wrap items-center gap-2 rounded-lg border border-slate-200/80 bg-white px-3 py-2 dark:border-slate-800 dark:bg-[#070A0F]">
       <span className="text-[10px] font-bold uppercase tracking-wide text-slate-400">
         L{index + 1}
       </span>
@@ -94,16 +97,18 @@ function LegReadonlyRow({ leg, index }: { leg: AlgoLegConfig; index: number }) {
       >
         {sell ? 'Sell' : 'Buy'}
       </span>
-      <span className="text-sm font-bold text-slate-900 dark:text-slate-100">
+      <span className="text-xs font-bold text-slate-900 dark:text-slate-100">
         {leg.optionType ?? 'CE'}
       </span>
-      <span className="rounded bg-blue-500/10 px-1.5 py-0.5 text-xs font-semibold text-blue-700 dark:text-blue-300">
+      <span className="rounded bg-blue-500/10 px-1.5 py-0.5 text-[11px] font-semibold text-blue-700 dark:text-blue-300">
         {leg.strikeCriteria ?? 'ATM'}
       </span>
       <span className="text-xs font-medium text-slate-600 dark:text-slate-300">
         {leg.expiry ?? 'Weekly'}
       </span>
-      <span className="text-xs text-slate-500">{leg.lots} lot{leg.lots === 1 ? '' : 's'}</span>
+      <span className="text-xs text-slate-500">
+        {leg.lots} lot{leg.lots === 1 ? '' : 's'}
+      </span>
       <span className="ml-auto flex flex-wrap gap-2 text-[11px]">
         <span
           className={
@@ -182,7 +187,7 @@ function OpenPositionsBlock({
             return (
               <li
                 key={t.id}
-                className="flex flex-wrap items-center gap-x-1.5 gap-y-1 rounded-lg border border-slate-200/60 bg-slate-50/80 px-3 py-2 text-[11px] opacity-80 dark:border-slate-800/80 dark:bg-[#0B0F17]/70"
+                className="flex flex-wrap items-center gap-x-1.5 gap-y-1 rounded-lg border border-slate-200/60 bg-slate-50/80 px-3 py-2 text-[11px] opacity-80 dark:border-slate-800/80 dark:bg-[#070A0F]/70"
               >
                 <span
                   className={`shrink-0 rounded px-1.5 py-0.5 text-[10px] font-bold uppercase ${
@@ -211,7 +216,7 @@ function OpenPositionsBlock({
                   {closedReasonChip(t.triggerReason)}
                 </span>
                 <span
-                  className={`ml-auto shrink-0 font-num tabular-nums text-right font-semibold min-w-[4.5rem] ${
+                  className={`ml-auto min-w-[4.5rem] shrink-0 text-right font-num font-semibold tabular-nums ${
                     pnl >= 0
                       ? 'text-emerald-600/80 dark:text-emerald-400/80'
                       : 'text-rose-600/80 dark:text-rose-400/80'
@@ -223,8 +228,7 @@ function OpenPositionsBlock({
             )
           }
           const ltp = prices[t.instrumentKey]
-          const mark =
-            typeof ltp === 'number' && ltp > 0 ? ltp : t.entryPrice
+          const mark = typeof ltp === 'number' && ltp > 0 ? ltp : t.entryPrice
           const pnl = tradeLivePnl(t, prices)
           const legCfg = legs[t.legIndex] ?? null
           const slTrigger = resolveLegSlTrigger(t, legCfg)
@@ -233,7 +237,7 @@ function OpenPositionsBlock({
           return (
             <li
               key={t.id}
-              className="flex flex-wrap items-center gap-x-1.5 gap-y-1 rounded-lg border border-slate-200/80 bg-white px-3 py-2 text-[11px] dark:border-slate-800 dark:bg-[#0B0F17]"
+              className="flex flex-wrap items-center gap-x-1.5 gap-y-1 rounded-lg border border-slate-200/80 bg-white px-3 py-2 text-[11px] dark:border-slate-800 dark:bg-[#070A0F]"
             >
               <span
                 className={`shrink-0 rounded px-1.5 py-0.5 text-[10px] font-bold uppercase ${
@@ -267,13 +271,11 @@ function OpenPositionsBlock({
               <span className="shrink-0 font-num tabular-nums text-slate-500">
                 SL {slTrigger != null ? formatPrice(slTrigger) : '—'}
               </span>
-              <span
-                className={`shrink-0 ${slTone.className} ${slTone.breatheClass}`}
-              >
+              <span className={`shrink-0 ${slTone.className} ${slTone.breatheClass}`}>
                 Δ {slDist != null ? formatPnl(slDist) : '—'}
               </span>
               <span
-                className={`ml-auto shrink-0 font-num tabular-nums text-right font-semibold min-w-[4.5rem] ${
+                className={`ml-auto min-w-[4.5rem] shrink-0 text-right font-num font-semibold tabular-nums ${
                   pnl >= 0
                     ? 'text-emerald-600 dark:text-emerald-400'
                     : 'text-rose-600 dark:text-rose-400'
@@ -295,6 +297,7 @@ function StrategyCard({
   onDelete,
   onRun,
   onStop,
+  onInspectLifecycle,
   selected,
   onSelect,
   liveUnrealised,
@@ -306,6 +309,7 @@ function StrategyCard({
   onDelete?: () => void
   onRun?: () => void
   onStop?: () => void
+  onInspectLifecycle?: () => void
   selected?: boolean
   onSelect?: () => void
   liveUnrealised?: number | null
@@ -330,8 +334,7 @@ function StrategyCard({
     return exitAt != null && Date.now() >= exitAt.getTime()
   }, [strategy.config.entry.exitTime])
   const nextDeployment =
-    waiting &&
-    (Boolean(runDateKey && runDateKey > todayKey) || exitPastToday)
+    waiting && (Boolean(runDateKey && runDateKey > todayKey) || exitPastToday)
   const countdownTarget = waiting
     ? strategy.config.entry.entryTime
     : active
@@ -388,7 +391,6 @@ function StrategyCard({
 
   const openUnrealised =
     liveUnrealised != null ? liveUnrealised : openTrades.length > 0 ? 0 : null
-  /** Open unrealised + closed realised for the active run; else strategy lifetime total. */
   const displayTotalPnl = (() => {
     const u = openUnrealised ?? 0
     const r = closedRealisedPnl ?? 0
@@ -423,17 +425,18 @@ function StrategyCard({
   }
 
   const headerInteractive = collapsible || Boolean(onSelect)
+  const modeLabel = (run?.executionMode ?? strategy.executionMode ?? 'PAPER').toUpperCase()
 
   return (
     <div
-      className={`rounded-xl border bg-white shadow-sm dark:bg-[#0D1119] ${
+      className={`rounded-xl border bg-white shadow-xs transition dark:bg-[#0D1119] ${
         selected
           ? 'border-blue-500 ring-1 ring-blue-500/40 dark:border-blue-400'
-          : 'border-slate-200/90 dark:border-slate-800'
+          : 'border-slate-200/90 hover:border-slate-300 dark:border-slate-800 dark:hover:border-slate-700'
       }`}
     >
       <div
-        className={`flex items-center gap-2 px-3 py-2.5 ${headerInteractive ? 'cursor-pointer' : ''}`}
+        className={`flex items-center gap-2.5 px-3.5 py-3 ${headerInteractive ? 'cursor-pointer' : ''}`}
         onClick={handleHeaderClick}
         onKeyDown={(e) => {
           if (!headerInteractive) return
@@ -447,10 +450,7 @@ function StrategyCard({
         aria-expanded={collapsible ? expanded : undefined}
       >
         {collapsible && (
-          <span
-            aria-hidden
-            className="rounded-md p-0.5 text-slate-500"
-          >
+          <span aria-hidden className="rounded-md p-0.5 text-slate-400">
             <svg
               viewBox="0 0 20 20"
               className={`h-4 w-4 transition-transform ${expanded ? 'rotate-180' : ''}`}
@@ -474,22 +474,38 @@ function StrategyCard({
             bias={structure.bias}
             size="sm"
           />
-          <p className="mt-0.5 truncate text-[11px] leading-tight text-slate-500">
+          <p className="mt-1 truncate text-[11px] leading-tight text-slate-500 dark:text-slate-400">
             {strategy.config.instrument.index} · {strategy.config.entry.entryTime}–
             {strategy.config.entry.exitTime} · {strategy.config.legs.length} leg
             {strategy.config.legs.length === 1 ? '' : 's'}
           </p>
         </div>
-        <div className="flex shrink-0 flex-col items-end justify-center gap-0.5">
-          <span
-            className={`rounded px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide leading-none ${
-              strategy.status === 'RUNNING'
-                ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400'
-                : 'bg-slate-200/80 text-slate-600 dark:bg-slate-800 dark:text-slate-300'
-            }`}
-          >
-            {strategy.status}
-          </span>
+        <div className="flex shrink-0 flex-col items-end justify-center gap-1">
+          <div className="flex items-center gap-1.5">
+            {strategy.status === 'RUNNING' && (
+              <span
+                className={`rounded px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide leading-none ${
+                  modeLabel === 'LIVE'
+                    ? 'bg-amber-500/15 text-amber-700 dark:text-amber-300'
+                    : 'bg-blue-500/12 text-blue-700 dark:text-blue-300'
+                }`}
+              >
+                {modeLabel}
+              </span>
+            )}
+            <span
+              className={`inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide leading-none ${
+                strategy.status === 'RUNNING'
+                  ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400'
+                  : 'bg-slate-200/80 text-slate-600 dark:bg-slate-800 dark:text-slate-300'
+              }`}
+            >
+              {strategy.status === 'RUNNING' && (
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+              )}
+              {strategy.status}
+            </span>
+          </div>
           {collapsible && !expanded && (
             <span
               className={`font-num text-sm font-bold tabular-nums leading-tight ${
@@ -505,7 +521,7 @@ function StrategyCard({
       </div>
 
       {collapsible && expanded && (
-        <div className="mx-4 mb-3 grid grid-cols-2 gap-2 rounded-lg border border-slate-200/70 bg-slate-50/80 p-2.5 text-[11px] dark:border-slate-800 dark:bg-[#131924]">
+        <div className="mx-3.5 mb-3 grid grid-cols-2 gap-2 rounded-xl border border-slate-200/70 bg-slate-50/80 p-3 text-[11px] dark:border-slate-800 dark:bg-[#131924]">
           <div>
             <span className="text-slate-500">Trades</span>
             <div className="font-num font-semibold text-slate-800 dark:text-slate-100">
@@ -554,13 +570,9 @@ function StrategyCard({
             </div>
           </div>
           <div>
-            <span className="text-slate-500">
-              {run ? 'Session' : 'Mode'}
-            </span>
+            <span className="text-slate-500">{run ? 'Session' : 'Mode'}</span>
             <div className="font-semibold text-slate-800 dark:text-slate-100">
-              {run
-                ? formatLifecycleState(run.lifecycleState)
-                : strategy.executionMode}
+              {run ? formatLifecycleState(run.lifecycleState) : strategy.executionMode}
             </div>
           </div>
           {run && (
@@ -627,7 +639,7 @@ function StrategyCard({
       )}
 
       {!collapsible && (
-        <div className="mx-4 mb-3 space-y-0">
+        <div className="mx-3.5 mb-3 space-y-0">
           {runPositionTrades.length > 0 && (
             <OpenPositionsBlock
               trades={runPositionTrades}
@@ -691,13 +703,13 @@ function StrategyCard({
       )}
 
       {collapsible && expanded && (
-        <div className="space-y-3 border-t border-slate-200/80 px-4 py-3 dark:border-slate-800">
+        <div className="space-y-3 border-t border-slate-200/80 px-3.5 py-3 dark:border-slate-800">
           <div className="grid grid-cols-2 gap-2">
             <div className="rounded-lg bg-rose-500/10 px-3 py-2">
               <div className="text-[10px] font-semibold uppercase tracking-wide text-rose-500/80">
                 Overall SL
               </div>
-              <div className="text-sm font-bold text-rose-700 dark:text-rose-300">
+              <div className="text-xs font-bold text-rose-700 dark:text-rose-300">
                 {riskText(
                   overall.overallSlEnabled,
                   overall.overallSlType,
@@ -709,7 +721,7 @@ function StrategyCard({
               <div className="text-[10px] font-semibold uppercase tracking-wide text-emerald-500/80">
                 Overall target
               </div>
-              <div className="text-sm font-bold text-emerald-700 dark:text-emerald-300">
+              <div className="text-xs font-bold text-emerald-700 dark:text-emerald-300">
                 {riskText(
                   overall.overallTargetEnabled,
                   overall.overallTargetType,
@@ -730,7 +742,7 @@ function StrategyCard({
 
           <div className="space-y-1.5">
             <div className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
-              Lifecycle
+              Recent events
             </div>
             {run && (
               <div className="mb-2 flex flex-wrap gap-3 text-[11px]">
@@ -747,19 +759,17 @@ function StrategyCard({
                 )}
               </div>
             )}
-            {lifeLoading && (
-              <p className="text-xs text-slate-400">Loading events…</p>
-            )}
+            {lifeLoading && <p className="text-xs text-slate-400">Loading events…</p>}
             {!lifeLoading && events.length === 0 && (
               <p className="text-xs text-slate-400">No lifecycle events yet.</p>
             )}
-            <ul className="max-h-48 space-y-1.5 overflow-auto">
+            <ul className="desk-scroll max-h-44 space-y-1.5 overflow-auto">
               {events.map((ev) => (
                 <li
                   key={ev.id}
                   className="flex gap-2 rounded-md bg-slate-50/90 px-2 py-1.5 text-[11px] dark:bg-[#131924]"
                 >
-                  <span className="shrink-0 font-medium tabular-nums text-slate-400">
+                  <span className="shrink-0 font-num font-medium tabular-nums text-slate-400">
                     {formatIstClock(ev.createdAt)}
                   </span>
                   <span className={`shrink-0 font-bold ${eventTone(ev.eventType)}`}>
@@ -775,47 +785,58 @@ function StrategyCard({
         </div>
       )}
 
-      {(onEdit || onDelete || onRun || (expanded && onStop)) && (
+      {(onEdit || onDelete || onRun || onStop || onInspectLifecycle) && (
         <div
-          className="flex flex-wrap gap-2 border-t border-slate-200/70 px-4 py-3 dark:border-slate-800"
+          className="flex flex-wrap items-center gap-2 border-t border-slate-200/70 px-3.5 py-2.5 dark:border-slate-800"
           onClick={(e) => e.stopPropagation()}
         >
           {onEdit && strategy.status !== 'RUNNING' && (
             <button
               type="button"
               onClick={onEdit}
-              className="rounded-lg border border-slate-200 px-2.5 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
+              className="rounded-lg border border-slate-200 px-2.5 py-1.5 text-xs font-medium text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
             >
               Edit
+            </button>
+          )}
+          {onInspectLifecycle && (
+            <button
+              type="button"
+              onClick={onInspectLifecycle}
+              className="rounded-lg border border-slate-200 px-2.5 py-1.5 text-xs font-medium text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
+            >
+              Trades &amp; Logs
             </button>
           )}
           {onDelete && (
             <button
               type="button"
               onClick={onDelete}
-              className="rounded-lg border border-rose-200 px-2.5 py-1.5 text-xs font-medium text-rose-600 dark:border-rose-900 dark:text-rose-400"
+              className="rounded-lg border border-rose-200 px-2.5 py-1.5 text-xs font-medium text-rose-600 transition hover:bg-rose-50 dark:border-rose-900/60 dark:text-rose-400 dark:hover:bg-rose-950/30"
             >
               Delete
             </button>
           )}
-          {onRun && (
-            <button
-              type="button"
-              onClick={onRun}
-              className="rounded-lg bg-blue-600 px-2.5 py-1.5 text-xs font-semibold text-white"
-            >
-              Run
-            </button>
-          )}
-          {expanded && onStop && (
-            <button
-              type="button"
-              onClick={onStop}
-              className="rounded-lg bg-rose-600 px-2.5 py-1.5 text-xs font-semibold text-white"
-            >
-              Stop
-            </button>
-          )}
+          <div className="ml-auto flex items-center gap-2">
+            {onRun && (
+              <button
+                type="button"
+                onClick={onRun}
+                className="rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-blue-500"
+              >
+                Run
+              </button>
+            )}
+            {onStop && (
+              <button
+                type="button"
+                onClick={onStop}
+                className="rounded-lg bg-rose-600 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-rose-500"
+              >
+                Stop
+              </button>
+            )}
+          </div>
         </div>
       )}
     </div>
@@ -823,6 +844,7 @@ function StrategyCard({
 }
 
 export function AlgoExecutionWorkspace() {
+  const { confirm, toast } = useFeedback()
   const [strategies, setStrategies] = useState<AlgoStrategySummary[]>([])
   const [error, setError] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
@@ -830,6 +852,7 @@ export function AlgoExecutionWorkspace() {
   const [editing, setEditing] = useState<AlgoStrategySummary | null>(null)
   const [runChooserId, setRunChooserId] = useState<string | null>(null)
   const [stopConfirm, setStopConfirm] = useState<AlgoStrategySummary | null>(null)
+  const [lifecycleTarget, setLifecycleTarget] = useState<AlgoStrategySummary | null>(null)
   const [selectedRunningId, setSelectedRunningId] = useState<string | null>(null)
   const [prices, setPrices] = useState<Record<string, number>>({})
 
@@ -928,12 +951,30 @@ export function AlgoExecutionWorkspace() {
     return out
   }, [selectedRunning, selectedUnderlyingKey, selectedSpot, prices])
 
+  const runningSummary = useMemo(() => {
+    let liveCount = 0
+    let paperCount = 0
+    let totalPnl = 0
+    for (const s of running) {
+      const mode = (s.activeRun?.executionMode ?? s.executionMode ?? 'PAPER').toUpperCase()
+      if (mode === 'LIVE') liveCount++
+      else paperCount++
+      const openU = openTradesUnrealised(s.activeTrades, prices) ?? 0
+      const closedR = (s.activeTrades ?? [])
+        .filter(isClosedTrade)
+        .reduce((acc, t) => acc + t.pnl, 0)
+      totalPnl += openU + closedR
+    }
+    return { liveCount, paperCount, totalPnl: Math.round(totalPnl * 100) / 100 }
+  }, [running, prices])
+
   async function runStrategy(id: string, mode: AlgoExecutionMode) {
     setBusy(true)
     setError(null)
     try {
       await api.algoStrategies.run(id, mode)
       setRunChooserId(null)
+      toast(`Strategy started in ${mode} mode`, 'success')
       await refresh()
     } catch (err) {
       setError(err instanceof ApiError ? err.message : 'Could not start strategy')
@@ -948,6 +989,7 @@ export function AlgoExecutionWorkspace() {
     setError(null)
     try {
       await api.algoStrategies.stop(stopConfirm.id)
+      toast(`Stopped ${stopConfirm.name}`, 'info')
       setStopConfirm(null)
       await refresh()
     } catch (err) {
@@ -957,11 +999,18 @@ export function AlgoExecutionWorkspace() {
     }
   }
 
-  async function deleteStrategy(id: string) {
-    if (!window.confirm('Delete this saved strategy?')) return
+  async function deleteStrategy(strategy: AlgoStrategySummary) {
+    const ok = await confirm({
+      title: `Delete ${strategy.name}?`,
+      message: 'This removes the saved strategy configuration. Past run history will no longer appear here.',
+      confirmLabel: 'Delete',
+      tone: 'danger',
+    })
+    if (!ok) return
     setBusy(true)
     try {
-      await api.algoStrategies.delete(id)
+      await api.algoStrategies.delete(strategy.id)
+      toast(`Deleted ${strategy.name}`, 'info')
       await refresh()
     } catch (err) {
       setError(err instanceof ApiError ? err.message : 'Could not delete strategy')
@@ -979,51 +1028,96 @@ export function AlgoExecutionWorkspace() {
             setEditorOpen(false)
             setEditing(null)
           }}
-          onSaved={() => void refresh()}
+          onSaved={() => {
+            toast(editing ? 'Strategy updated' : 'Strategy saved', 'success')
+            void refresh()
+          }}
         />
       </div>
     )
   }
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
-      <div className="flex items-center justify-between gap-3 border-b border-slate-200/80 px-4 py-3 dark:border-slate-800/80">
-        <div>
-          <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-100">
-            Algo execution
-          </h2>
-          <p className="text-[11px] text-slate-500">
-            Save rule-based strategies, run Paper or Live, and track lifecycle.
-          </p>
+    <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-[#F4F7FB] dark:bg-[#070A0F]">
+      {/* Header + KPI Strip */}
+      <div className="shrink-0 border-b border-slate-200/80 bg-white px-4 py-3 dark:border-slate-800/80 dark:bg-[#0D1119]">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+              Algo Execution
+            </h2>
+            <p className="text-[11px] text-slate-500 dark:text-slate-400">
+              Create rule-based strategies, deploy Paper or Live, and monitor live payoff &amp; lifecycle.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => {
+              setEditing(null)
+              setEditorOpen(true)
+            }}
+            className="rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-3.5 py-2 text-xs font-semibold text-white shadow-sm shadow-blue-500/20 transition hover:brightness-110"
+          >
+            + Create Strategy
+          </button>
         </div>
-        <button
-          type="button"
-          onClick={() => {
-            setEditing(null)
-            setEditorOpen(true)
-          }}
-          className="rounded-lg bg-blue-600 px-3 py-2 text-xs font-semibold text-white"
-        >
-          + Create Strategy
-        </button>
+
+        <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
+          <StatTile label="Saved Strategies" value={saved.length} />
+          <StatTile
+            label="Running Now"
+            value={running.length}
+            tone={running.length > 0 ? 'accent' : 'neutral'}
+          />
+          <StatTile
+            label="Active Modes"
+            value={`${runningSummary.liveCount} Live · ${runningSummary.paperCount} Paper`}
+          />
+          <StatTile
+            label="Running MTM P&L"
+            value={running.length > 0 ? formatPnl(runningSummary.totalPnl) : '—'}
+            tone={
+              running.length === 0
+                ? 'neutral'
+                : runningSummary.totalPnl >= 0
+                  ? 'profit'
+                  : 'loss'
+            }
+          />
+        </div>
       </div>
 
       {error && (
-        <p className="border-b border-rose-200/60 bg-rose-50 px-4 py-2 text-sm text-rose-700 dark:border-rose-900/50 dark:bg-rose-950/30 dark:text-rose-300">
+        <p className="border-b border-rose-200/60 bg-rose-50 px-4 py-2 text-xs font-medium text-rose-700 dark:border-rose-900/50 dark:bg-rose-950/30 dark:text-rose-300">
           {error}
         </p>
       )}
 
-      <div className="grid min-h-0 flex-1 gap-4 overflow-hidden p-4 lg:grid-cols-[1fr_2fr]">
-        <section className="min-h-0 overflow-auto">
-          <h3 className="mb-1.5 text-xs font-semibold uppercase tracking-wider text-slate-500">
-            Saved strategy
-          </h3>
-          <div className="space-y-2">
+      <div className="grid min-h-0 flex-1 gap-4 overflow-hidden p-3 lg:grid-cols-[1.05fr_1.95fr] lg:p-4">
+        <section className="desk-scroll min-h-0 overflow-auto pr-0.5">
+          <div className="mb-2 flex items-center justify-between">
+            <h3 className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+              Saved Strategies ({saved.length})
+            </h3>
+          </div>
+          <div className="space-y-2.5">
             {saved.length === 0 && (
-              <p className="rounded-xl border border-dashed border-slate-300 px-4 py-8 text-center text-sm text-slate-500 dark:border-slate-700">
-                No saved strategies yet. Create one to get started.
-              </p>
+              <EmptyState
+                title="No saved strategies yet"
+                description="Build an intraday or positional multi-leg rule set to run in Paper or Live mode."
+                action={
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEditing(null)
+                      setEditorOpen(true)
+                    }}
+                    className="rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-blue-500"
+                  >
+                    + Create Strategy
+                  </button>
+                }
+              />
             )}
             {saved.map((s) => {
               const isRunning = s.status === 'RUNNING'
@@ -1034,9 +1128,7 @@ export function AlgoExecutionWorkspace() {
                   collapsible
                   prices={isRunning ? prices : undefined}
                   liveUnrealised={
-                    isRunning
-                      ? openTradesUnrealised(s.activeTrades, prices)
-                      : undefined
+                    isRunning ? openTradesUnrealised(s.activeTrades, prices) : undefined
                   }
                   onEdit={
                     isRunning
@@ -1046,9 +1138,8 @@ export function AlgoExecutionWorkspace() {
                           setEditorOpen(true)
                         }
                   }
-                  onDelete={
-                    isRunning ? undefined : () => void deleteStrategy(s.id)
-                  }
+                  onInspectLifecycle={() => setLifecycleTarget(s)}
+                  onDelete={isRunning ? undefined : () => void deleteStrategy(s)}
                   onRun={isRunning ? undefined : () => setRunChooserId(s.id)}
                   onStop={isRunning ? () => setStopConfirm(s) : undefined}
                 />
@@ -1058,15 +1149,16 @@ export function AlgoExecutionWorkspace() {
         </section>
 
         <section className="flex min-h-0 flex-col overflow-hidden">
-          <h3 className="mb-3 shrink-0 text-xs font-semibold uppercase tracking-wider text-slate-500">
-            Running
+          <h3 className="mb-2 shrink-0 text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+            Running ({running.length})
           </h3>
           <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-hidden">
-            <div className="max-h-[38%] shrink-0 space-y-2 overflow-auto">
+            <div className="desk-scroll max-h-[40%] shrink-0 space-y-2.5 overflow-auto pr-0.5">
               {running.length === 0 && (
-                <p className="rounded-xl border border-dashed border-slate-300 px-4 py-8 text-center text-sm text-slate-500 dark:border-slate-700">
-                  No strategies running.
-                </p>
+                <EmptyState
+                  title="No strategies running"
+                  description="Click Run on any saved strategy on the left to deploy it in Paper or Live mode."
+                />
               )}
               {running.map((s) => (
                 <StrategyCard
@@ -1080,14 +1172,16 @@ export function AlgoExecutionWorkspace() {
                       ? () => setSelectedRunningId(s.id)
                       : undefined
                   }
+                  onInspectLifecycle={() => setLifecycleTarget(s)}
+                  onStop={() => setStopConfirm(s)}
                   liveUnrealised={openTradesUnrealised(s.activeTrades, prices)}
                 />
               ))}
             </div>
 
-            <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-slate-200/90 bg-white dark:border-slate-800 dark:bg-[#0D1119]">
+            <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-slate-200/90 bg-white shadow-xs dark:border-slate-800 dark:bg-[#0D1119]">
               {payoffLegs.length > 0 ? (
-                <div className="flex min-h-0 flex-1 flex-col overflow-auto p-2 sm:p-3">
+                <div className="desk-scroll flex min-h-0 flex-1 flex-col overflow-auto p-2 sm:p-3">
                   <PayoffChart
                     legs={payoffLegs}
                     spot={selectedSpot}
@@ -1100,10 +1194,10 @@ export function AlgoExecutionWorkspace() {
                   />
                 </div>
               ) : (
-                <div className="flex flex-1 items-center justify-center px-4 py-10 text-center text-sm text-slate-500">
+                <div className="flex flex-1 items-center justify-center px-4 py-10 text-center text-xs text-slate-500 dark:text-slate-400">
                   {running.length === 0
-                    ? 'Start a strategy to see its payoff here.'
-                    : 'Waiting for open positions to plot payoff.'}
+                    ? 'Start a strategy to plot its live payoff diagram here.'
+                    : 'Waiting for open positions to plot live payoff.'}
                 </div>
               )}
             </div>
@@ -1112,36 +1206,36 @@ export function AlgoExecutionWorkspace() {
       </div>
 
       {runChooserId && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-          <div className="w-full max-w-sm rounded-xl border border-slate-200 bg-white p-4 shadow-xl dark:border-slate-700 dark:bg-[#131823]">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-sm rounded-2xl border border-slate-200 bg-white p-5 shadow-2xl dark:border-slate-800 dark:bg-[#0D1119]">
             <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">
-              Run mode
+              Choose Execution Mode
             </h3>
-            <p className="mt-1 text-xs text-slate-500">
-              Paper uses LTP fills. Live places MARKET orders at the broker.
+            <p className="mt-1 text-xs leading-relaxed text-slate-500 dark:text-slate-400">
+              Paper simulates fills using live LTP. Live places real MARKET orders through MStock.
             </p>
-            <div className="mt-4 grid grid-cols-2 gap-2">
+            <div className="mt-4 grid grid-cols-2 gap-2.5">
               <button
                 type="button"
                 disabled={busy}
                 onClick={() => void runStrategy(runChooserId, 'PAPER')}
-                className="rounded-lg border border-slate-200 px-3 py-2.5 text-sm font-semibold text-slate-800 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-100 dark:hover:bg-slate-800"
+                className="rounded-xl border border-slate-200 bg-slate-50/70 px-3 py-2.5 text-xs font-semibold text-slate-800 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-[#131924] dark:text-slate-100 dark:hover:bg-slate-800"
               >
-                Paper
+                Paper Mode
               </button>
               <button
                 type="button"
                 disabled={busy}
                 onClick={() => void runStrategy(runChooserId, 'LIVE')}
-                className="rounded-lg bg-blue-600 px-3 py-2.5 text-sm font-semibold text-white disabled:opacity-60"
+                className="rounded-xl bg-blue-600 px-3 py-2.5 text-xs font-semibold text-white transition hover:bg-blue-500 disabled:opacity-60"
               >
-                Live
+                Live Mode
               </button>
             </div>
             <button
               type="button"
               onClick={() => setRunChooserId(null)}
-              className="mt-3 w-full rounded-lg py-2 text-sm text-slate-500"
+              className="mt-3 w-full rounded-lg py-2 text-xs font-medium text-slate-500 hover:text-slate-800 dark:hover:text-slate-200"
             >
               Cancel
             </button>
@@ -1150,22 +1244,22 @@ export function AlgoExecutionWorkspace() {
       )}
 
       {stopConfirm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-          <div className="w-full max-w-md rounded-xl border border-slate-200 bg-white p-4 shadow-xl dark:border-slate-700 dark:bg-[#131823]">
-            <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-5 shadow-2xl dark:border-slate-800 dark:bg-[#0D1119]">
+            <h3 className="text-base font-semibold text-slate-900 dark:text-slate-100">
               Stop {stopConfirm.name}?
             </h3>
-            <p className="mt-2 text-xs leading-relaxed text-slate-500">
+            <p className="mt-2 text-xs leading-relaxed text-slate-500 dark:text-slate-400">
               {stopConfirm.executionMode === 'LIVE' ||
               stopConfirm.activeRun?.executionMode === 'LIVE'
                 ? 'Live stop verifies open positions at the broker before placing exit orders. Positions already flat are reconciled without new orders.'
                 : 'Paper stop marks open legs closed at the latest LTP and finalises the run.'}
             </p>
-            <div className="mt-4 flex justify-end gap-2">
+            <div className="mt-5 flex justify-end gap-2">
               <button
                 type="button"
                 onClick={() => setStopConfirm(null)}
-                className="rounded-lg px-3 py-2 text-sm text-slate-600 dark:text-slate-300"
+                className="rounded-lg border border-slate-200 px-3.5 py-2 text-xs font-medium text-slate-600 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
               >
                 Cancel
               </button>
@@ -1173,13 +1267,21 @@ export function AlgoExecutionWorkspace() {
                 type="button"
                 disabled={busy}
                 onClick={() => void confirmStop()}
-                className="rounded-lg bg-rose-600 px-3 py-2 text-sm font-semibold text-white disabled:opacity-60"
+                className="rounded-lg bg-rose-600 px-3.5 py-2 text-xs font-semibold text-white transition hover:bg-rose-500 disabled:opacity-60"
               >
                 Stop strategy
               </button>
             </div>
           </div>
         </div>
+      )}
+
+      {lifecycleTarget && (
+        <StrategyLifecycleDrawer
+          strategyId={lifecycleTarget.id}
+          strategyName={lifecycleTarget.name}
+          onClose={() => setLifecycleTarget(null)}
+        />
       )}
     </div>
   )

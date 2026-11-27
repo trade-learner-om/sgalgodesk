@@ -422,6 +422,97 @@ export type AlgoStrategyLifecycle = {
   events: AlgoStrategyEvent[]
 }
 
+export type DdsMaxLossType = 'POINTS' | 'MONEY'
+
+export type DdsSettings = {
+  initialDelta: number
+  maxLossType: DdsMaxLossType | string
+  maxLossValue: number
+  exitTime: string
+  lots: number
+}
+
+export type DdsRun = {
+  id: string
+  strategyId: string
+  runDate: string
+  executionMode: AlgoExecutionMode | string
+  lifecycleState: string
+  realisedPnl: number
+  unrealisedPnl: number
+  startedAt: string
+  endedAt: string | null
+}
+
+export type DdsTrade = {
+  id: string
+  strategyId: string
+  runId: string
+  legRole: string
+  instrumentKey: string
+  tradingSymbol: string | null
+  side: string
+  quantity: number
+  executionMode: string
+  brokerOrderId: string | null
+  entryPrice: number
+  exitPrice: number | null
+  pnl: number
+  triggerReason: string
+  status: string
+  deltaAtEntry: number | null
+  lotSize: number | null
+  strike: number | null
+  expiry: string | null
+  optionType: string | null
+  executedAt: string
+  closedAt: string | null
+}
+
+export type DdsEvent = {
+  id: string
+  strategyId: string
+  runId: string | null
+  eventType: string
+  message: string
+  createdAt: string
+}
+
+export type DdsStrategySummary = {
+  id: string
+  name: string
+  status: string
+  executionMode: AlgoExecutionMode | string
+  settings: DdsSettings
+  activeRun: DdsRun | null
+  activeTrades: DdsTrade[]
+  totalTrades: number
+  tradesToday: number
+  totalPnl: number
+  todayPnl: number
+  createdAt: string
+  updatedAt: string
+}
+
+export type DdsStrategyLifecycle = {
+  strategy: DdsStrategySummary
+  runs: DdsRun[]
+  trades: DdsTrade[]
+  events: DdsEvent[]
+}
+
+export type DdsHistoryDayGroup = {
+  date: string
+  trades: DdsTrade[]
+  dayPnl: number
+}
+
+export type DdsHistoryResponse = {
+  groups: DdsHistoryDayGroup[]
+  nextCursor: string | null
+  hasMore: boolean
+}
+
 export class ApiError extends Error {
   status: number
   body: { error?: string; status?: number }
@@ -597,5 +688,57 @@ export const api = {
       }),
     lifecycle: (id: string) =>
       request<AlgoStrategyLifecycle>(`/api/algo-strategies/${id}/lifecycle`),
+  },
+
+  ddsStrategies: {
+    list: () => request<DdsStrategySummary[]>('/api/dds-strategies'),
+    create: (body: {
+      name: string
+      executionMode?: AlgoExecutionMode | string
+      settings: DdsSettings
+    }) =>
+      request<DdsStrategySummary>('/api/dds-strategies', {
+        method: 'POST',
+        body: JSON.stringify(body),
+      }),
+    update: (
+      id: string,
+      body: {
+        name: string
+        executionMode?: AlgoExecutionMode | string
+        settings: DdsSettings
+      },
+    ) =>
+      request<DdsStrategySummary>(`/api/dds-strategies/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify(body),
+      }),
+    delete: (id: string) =>
+      request<void>(`/api/dds-strategies/${id}`, { method: 'DELETE' }),
+    run: (id: string, executionMode: AlgoExecutionMode | string) =>
+      request<DdsStrategySummary>(`/api/dds-strategies/${id}/run`, {
+        method: 'POST',
+        body: JSON.stringify({ executionMode }),
+      }),
+    stop: (id: string) =>
+      request<DdsStrategySummary>(`/api/dds-strategies/${id}/stop`, {
+        method: 'POST',
+      }),
+    lifecycle: (id: string) =>
+      request<DdsStrategyLifecycle>(`/api/dds-strategies/${id}/lifecycle`),
+    history: (
+      id: string,
+      params: { from?: string; to?: string; cursor?: string | null; limit?: number },
+    ) => {
+      const q = new URLSearchParams()
+      if (params.from) q.set('from', params.from)
+      if (params.to) q.set('to', params.to)
+      if (params.cursor) q.set('cursor', params.cursor)
+      if (params.limit != null) q.set('limit', String(params.limit))
+      const qs = q.toString()
+      return request<DdsHistoryResponse>(
+        `/api/dds-strategies/${id}/history${qs ? `?${qs}` : ''}`,
+      )
+    },
   },
 }

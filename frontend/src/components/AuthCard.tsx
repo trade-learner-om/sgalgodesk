@@ -32,44 +32,44 @@ export function AuthCard({ onAuthenticated }: Props) {
   }
 
   return (
-    <div className="desk-grid-bg relative flex min-h-screen items-center justify-center overflow-hidden bg-[#F6F8FB] px-4 py-10 dark:bg-[#070A0F]">
-      <div className="pointer-events-none absolute -top-40 left-1/2 h-96 w-[42rem] -translate-x-1/2 rounded-full bg-blue-500/10 blur-3xl dark:bg-blue-600/15" />
+    <div className="desk-grid-bg relative flex min-h-screen items-center justify-center overflow-hidden bg-[#F5F5F2] px-4 py-10 dark:bg-[#0B0E14]">
+      <div className="pointer-events-none absolute -top-40 left-1/2 h-96 w-[42rem] -translate-x-1/2 rounded-full bg-teal-600/8 blur-3xl dark:bg-teal-500/12" />
 
       <div className="absolute right-4 top-4 z-10">
         <ThemeToggle />
       </div>
 
-      <div className="relative z-10 w-full max-w-[420px]">
-        <div className="rounded-2xl border border-slate-200/90 bg-white/95 p-7 shadow-xl shadow-slate-900/5 backdrop-blur-xl dark:border-slate-800/90 dark:bg-[#0D1119]/95 dark:shadow-black/40">
+      <div className="animate-modal-pop relative z-10 w-full max-w-[420px]">
+        <div className="rounded-2xl border border-stone-200/90 bg-white/95 p-7 shadow-xl shadow-stone-900/5 backdrop-blur-xl dark:border-slate-800/90 dark:bg-[#121721]/95 dark:shadow-black/40">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 text-sm font-bold tracking-tight text-white shadow-md shadow-blue-500/25">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-teal-700 to-slate-800 text-sm font-bold tracking-tight text-white shadow-md shadow-teal-700/20 dark:from-teal-500 dark:to-teal-700">
               SG
             </div>
             <div>
-              <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-blue-600 dark:text-blue-400">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-teal-700 dark:text-teal-400">
                 Options &amp; F&amp;O Terminal
               </p>
-              <h1 className="text-xl font-semibold tracking-tight text-slate-900 dark:text-slate-100">
+              <h1 className="text-xl font-semibold tracking-tight text-stone-900 dark:text-slate-100">
                 SG Algo Desk
               </h1>
             </div>
           </div>
 
-          <p className="mt-4 text-xs leading-relaxed text-slate-500 dark:text-slate-400">
+          <p className="mt-4 text-xs leading-relaxed text-stone-500 dark:text-slate-400">
             Analyze live option chains, simulate T0 &amp; expiry payoffs, and execute multi-leg spreads with real-time streaming.
           </p>
 
-          <div className="mt-6 grid grid-cols-2 rounded-xl bg-slate-100 p-1 dark:bg-[#070A0F]">
+          <div className="mt-6 grid grid-cols-2 rounded-xl bg-stone-100 p-1 dark:bg-[#0B0E14]">
             <button
               type="button"
               onClick={() => {
                 setMode('login')
                 setError(null)
               }}
-              className={`rounded-lg py-1.5 text-xs font-semibold transition ${
+              className={`rounded-lg py-1.5 text-xs font-semibold transition-all duration-200 ${
                 mode === 'login'
-                  ? 'bg-white text-slate-900 shadow-sm dark:bg-[#131924] dark:text-slate-100'
-                  : 'text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200'
+                  ? 'bg-white text-stone-900 shadow-xs dark:bg-[#181F2C] dark:text-slate-100'
+                  : 'text-stone-500 hover:text-stone-800 dark:text-slate-400 dark:hover:text-slate-200'
               }`}
             >
               Sign in
@@ -80,10 +80,10 @@ export function AuthCard({ onAuthenticated }: Props) {
                 setMode('signup')
                 setError(null)
               }}
-              className={`rounded-lg py-1.5 text-xs font-semibold transition ${
+              className={`rounded-lg py-1.5 text-xs font-semibold transition-all duration-200 ${
                 mode === 'signup'
-                  ? 'bg-white text-slate-900 shadow-sm dark:bg-[#131924] dark:text-slate-100'
-                  : 'text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200'
+                  ? 'bg-white text-stone-900 shadow-xs dark:bg-[#181F2C] dark:text-slate-100'
+                  : 'text-stone-500 hover:text-stone-800 dark:text-slate-400 dark:hover:text-slate-200'
               }`}
             >
               Create account
@@ -92,7 +92,7 @@ export function AuthCard({ onAuthenticated }: Props) {
 
           <form className="mt-5 space-y-4" onSubmit={onSubmit}>
             <label className="block text-xs">
-              <span className="mb-1.5 block font-medium text-slate-600 dark:text-slate-300">
+              <span className="mb-1.5 block font-medium text-stone-600 dark:text-slate-300">
                 Email address
               </span>
               <input
@@ -102,12 +102,12 @@ export function AuthCard({ onAuthenticated }: Props) {
                 placeholder="trader@desk.local"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="h-10 w-full rounded-xl border border-slate-200 bg-slate-50/70 px-3 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 dark:border-slate-800 dark:bg-[#070A0F] dark:text-slate-100 dark:focus:border-blue-500 dark:focus:bg-[#0B0F17]"
+                className="h-10 w-full rounded-xl border border-stone-200 bg-stone-50/70 px-3 text-sm text-stone-900 outline-none transition focus:border-teal-600 focus:bg-white focus:ring-4 focus:ring-teal-600/10 dark:border-slate-800 dark:bg-[#0B0E14] dark:text-slate-100 dark:focus:border-teal-400 dark:focus:bg-[#121721]"
               />
             </label>
 
             <label className="block text-xs">
-              <span className="mb-1.5 block font-medium text-slate-600 dark:text-slate-300">
+              <span className="mb-1.5 block font-medium text-stone-600 dark:text-slate-300">
                 Password
               </span>
               <div className="relative">
@@ -119,12 +119,12 @@ export function AuthCard({ onAuthenticated }: Props) {
                   placeholder="Minimum 8 characters"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="h-10 w-full rounded-xl border border-slate-200 bg-slate-50/70 pl-3 pr-14 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 dark:border-slate-800 dark:bg-[#070A0F] dark:text-slate-100 dark:focus:border-blue-500 dark:focus:bg-[#0B0F17]"
+                  className="h-10 w-full rounded-xl border border-stone-200 bg-stone-50/70 pl-3 pr-14 text-sm text-stone-900 outline-none transition focus:border-teal-600 focus:bg-white focus:ring-4 focus:ring-teal-600/10 dark:border-slate-800 dark:bg-[#0B0E14] dark:text-slate-100 dark:focus:border-teal-400 dark:focus:bg-[#121721]"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword((v) => !v)}
-                  className="absolute right-2.5 top-1/2 -translate-y-1/2 rounded px-1.5 py-0.5 text-[11px] font-medium text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 rounded px-1.5 py-0.5 text-[11px] font-medium text-stone-400 hover:text-stone-700 dark:hover:text-slate-200"
                 >
                   {showPassword ? 'Hide' : 'Show'}
                 </button>
@@ -140,7 +140,7 @@ export function AuthCard({ onAuthenticated }: Props) {
             <button
               type="submit"
               disabled={busy}
-              className="h-10 w-full rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-4 text-sm font-semibold text-white shadow-md shadow-blue-500/20 transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60"
+              className="h-10 w-full rounded-xl bg-gradient-to-r from-teal-700 to-slate-800 px-4 text-sm font-semibold text-white shadow-md shadow-teal-700/15 transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60 dark:from-teal-600 dark:to-teal-700"
             >
               {busy ? 'Authenticating…' : mode === 'login' ? 'Sign in to desk' : 'Create account'}
             </button>

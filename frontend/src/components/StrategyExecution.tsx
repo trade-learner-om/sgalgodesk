@@ -39,89 +39,89 @@ function ScenarioCard({
   const wing = scenario.bestWing
   return (
     <div
-      className={`flex flex-col rounded-xl border p-4 shadow-sm transition ${
+      className={`animate-desk-in flex flex-col rounded-xl border p-4 shadow-xs transition-all duration-200 ${
         scenario.preferred
-          ? 'border-blue-300 bg-blue-50/40 dark:border-blue-700/70 dark:bg-blue-950/20'
-          : 'border-slate-200/90 bg-white dark:border-slate-800/90 dark:bg-[#0D1119]'
+          ? 'border-teal-600/40 bg-teal-50/40 dark:border-teal-500/40 dark:bg-teal-950/20'
+          : 'border-stone-200/90 bg-white dark:border-slate-800/90 dark:bg-[#121721]'
       }`}
     >
       <div className="mb-3 flex items-start justify-between gap-2">
         <div>
           <div className="flex items-center gap-2">
-            <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+            <h3 className="text-sm font-semibold text-stone-900 dark:text-slate-100">
               Expiry {scenario.expiry}
             </h3>
             {scenario.preferred && (
-              <span className="rounded-full bg-blue-600/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-blue-600 dark:text-blue-400">
+              <span className="rounded-full bg-teal-600/12 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-teal-800 dark:bg-teal-400/15 dark:text-teal-300">
                 Preferred
               </span>
             )}
           </div>
-          <p className="mt-0.5 text-[11px] text-slate-500 dark:text-slate-400">
+          <p className="mt-0.5 text-[11px] text-stone-500 dark:text-slate-400">
             {scenario.daysToExpiry} DTE
           </p>
         </div>
         {wing && (
-          <div className="rounded-lg border border-slate-200/80 bg-white px-2.5 py-1 text-right dark:border-slate-800 dark:bg-[#131924]">
-            <div className="text-[9px] font-medium uppercase tracking-wider text-slate-500">
+          <div className="rounded-lg border border-stone-200/80 bg-white px-2.5 py-1 text-right dark:border-slate-800 dark:bg-[#171D29]">
+            <div className="text-[9px] font-medium uppercase tracking-wider text-stone-500 dark:text-slate-400">
               R:R
             </div>
-            <div className="font-num text-xs font-bold text-slate-900 dark:text-slate-100">
+            <div className="font-num text-xs font-bold text-stone-900 dark:text-slate-100">
               {wing.riskReward.toFixed(3)}
             </div>
           </div>
         )}
       </div>
 
-      {!wing && <p className="text-xs text-slate-500">No viable wing on this expiry.</p>}
+      {!wing && <p className="text-xs text-stone-500 dark:text-slate-400">No viable wing on this expiry.</p>}
 
       {wing && (
         <>
-          <dl className="mb-3 grid grid-cols-3 gap-2 rounded-xl border border-slate-200/70 bg-white/80 p-2.5 text-xs dark:border-slate-800 dark:bg-[#131924]">
+          <dl className="mb-3 grid grid-cols-3 gap-2 rounded-xl border border-stone-200/70 bg-white/80 p-2.5 text-xs dark:border-slate-800 dark:bg-[#171D29]">
             <div>
-              <dt className="text-[10px] text-slate-500">Sell strike</dt>
-              <dd className="font-num font-semibold text-slate-900 dark:text-slate-100">
+              <dt className="text-[10px] text-stone-500 dark:text-slate-400">Sell strike</dt>
+              <dd className="font-num font-semibold text-stone-900 dark:text-slate-100">
                 {wing.sellStrike}
               </dd>
             </div>
             <div>
-              <dt className="text-[10px] text-slate-500">Buy strike</dt>
-              <dd className="font-num font-semibold text-slate-900 dark:text-slate-100">
+              <dt className="text-[10px] text-stone-500 dark:text-slate-400">Buy strike</dt>
+              <dd className="font-num font-semibold text-stone-900 dark:text-slate-100">
                 {wing.buyStrike}
               </dd>
             </div>
             <div>
-              <dt className="text-[10px] text-slate-500">OTM steps</dt>
-              <dd className="font-num font-semibold text-slate-900 dark:text-slate-100">
+              <dt className="text-[10px] text-stone-500 dark:text-slate-400">OTM steps</dt>
+              <dd className="font-num font-semibold text-stone-900 dark:text-slate-100">
                 +{wing.otmSteps}
               </dd>
             </div>
             <div>
-              <dt className="text-[10px] text-slate-500">{debit ? 'Debit / lot' : 'Credit / lot'}</dt>
-              <dd className="font-num font-semibold text-slate-900 dark:text-slate-100">
+              <dt className="text-[10px] text-stone-500 dark:text-slate-400">{debit ? 'Debit / lot' : 'Credit / lot'}</dt>
+              <dd className="font-num font-semibold text-stone-900 dark:text-slate-100">
                 {formatMoney(wing.creditPerLot)}
               </dd>
             </div>
             <div>
-              <dt className="text-[10px] text-slate-500">Max profit</dt>
-              <dd className="font-num font-semibold text-emerald-600 dark:text-emerald-400">
+              <dt className="text-[10px] text-stone-500 dark:text-slate-400">Max profit</dt>
+              <dd className="font-num font-semibold text-emerald-700 dark:text-emerald-400">
                 {formatMoney(wing.maxProfitPerLot)}
               </dd>
             </div>
             <div>
-              <dt className="text-[10px] text-slate-500">Max loss</dt>
-              <dd className="font-num font-semibold text-rose-600 dark:text-rose-400">
+              <dt className="text-[10px] text-stone-500 dark:text-slate-400">Max loss</dt>
+              <dd className="font-num font-semibold text-rose-700 dark:text-rose-400">
                 {formatMoney(wing.maxLossPerLot)}
               </dd>
             </div>
           </dl>
 
           {scenario.allWings.length > 1 && (
-            <div className="mb-3 rounded-xl border border-slate-200/70 bg-slate-50/70 p-2.5 text-[11px] dark:border-slate-800 dark:bg-[#070A0F]/60">
-              <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-wider text-slate-500">
+            <div className="mb-3 rounded-xl border border-stone-200/70 bg-stone-50/70 p-2.5 text-[11px] dark:border-slate-800 dark:bg-[#0B0E14]/60">
+              <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-wider text-stone-500 dark:text-slate-400">
                 Wing Trials
               </p>
-              <ul className="space-y-1 font-num text-slate-600 dark:text-slate-300">
+              <ul className="space-y-1 font-num text-stone-600 dark:text-slate-300">
                 {scenario.allWings.map((t) => (
                   <li key={`${t.otmSteps}-${t.sellStrike}-${t.buyStrike}`}>
                     OTM+{t.otmSteps}: {formatMoney(t.creditPerLot)} · R:R {t.riskReward.toFixed(3)} ·
@@ -136,23 +136,23 @@ function ScenarioCard({
             {wing.legs.map((leg) => (
               <li
                 key={leg.instrumentKey}
-                className="flex items-center justify-between rounded-lg border border-slate-100 bg-white px-2.5 py-1.5 dark:border-slate-800/80 dark:bg-[#131924]"
+                className="flex items-center justify-between rounded-lg border border-stone-100 bg-white px-2.5 py-1.5 dark:border-slate-800/80 dark:bg-[#171D29]"
               >
                 <div className="flex items-center gap-2">
                   <span
                     className={`rounded px-1.5 py-0.5 text-[10px] font-bold ${
                       leg.side === 'BUY'
-                        ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400'
-                        : 'bg-rose-500/15 text-rose-600 dark:text-rose-400'
+                        ? 'bg-emerald-600/12 text-emerald-700 dark:text-emerald-400'
+                        : 'bg-rose-600/12 text-rose-700 dark:text-rose-400'
                     }`}
                   >
                     {leg.side}
                   </span>
-                  <span className="font-medium text-slate-800 dark:text-slate-100">
+                  <span className="font-medium text-stone-800 dark:text-slate-100">
                     {leg.tradingSymbol}
                   </span>
                 </div>
-                <span className="font-num text-slate-600 dark:text-slate-300">
+                <span className="font-num text-stone-600 dark:text-slate-300">
                   @ {formatMoney(leg.premium)}
                 </span>
               </li>
@@ -163,7 +163,7 @@ function ScenarioCard({
             type="button"
             disabled={executing}
             onClick={() => onExecute(wing)}
-            className="mt-auto h-9 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-3 text-xs font-semibold text-white shadow-sm transition hover:brightness-110 disabled:opacity-50"
+            className="mt-auto h-9 rounded-xl bg-teal-700 px-3 text-xs font-semibold text-white shadow-xs transition hover:bg-teal-600 disabled:opacity-50 dark:bg-teal-600 dark:hover:bg-teal-500"
           >
             {executing ? 'Placing orders…' : 'Execute Strategy'}
           </button>
@@ -299,46 +299,46 @@ export function StrategyExecution({ onTokenExpired, onCreateOwn, onExecuted }: P
   const signal = suggestion?.signal
 
   return (
-    <div className="desk-scroll flex h-full min-h-0 flex-1 flex-col overflow-auto bg-[#F6F8FB] p-3 dark:bg-[#070A0F] lg:p-4">
+    <div className="desk-scroll flex h-full min-h-0 flex-1 flex-col overflow-auto bg-[#F5F5F2] p-3 dark:bg-[#0B0E14] lg:p-4">
       <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h2 className="text-base font-semibold text-slate-900 dark:text-slate-100">
-            Strategy Execution
+          <h2 className="text-base font-semibold text-stone-900 dark:text-slate-100">
+            Signal Scanner
           </h2>
-          <p className="text-xs text-slate-500 dark:text-slate-400">
+          <p className="text-xs text-stone-500 dark:text-slate-400">
             Supertrend(10, 3.5) + EMA(9) on 75m candles · credit spreads by default
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <div className="flex rounded-xl bg-slate-100 p-0.5 dark:bg-[#0D1119]">
+          <div className="flex rounded-xl bg-stone-200/70 p-0.5 dark:bg-[#121721]">
             {indices.map((idx) => (
               <button
                 key={idx.instrumentKey}
                 type="button"
                 onClick={() => setSelectedKey(idx.instrumentKey)}
-                className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition ${
+                className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition-all duration-200 ${
                   selectedKey === idx.instrumentKey
-                    ? 'bg-white text-slate-900 shadow-sm dark:bg-[#131924] dark:text-slate-100'
-                    : 'text-slate-500 hover:text-slate-800 dark:text-slate-400'
+                    ? 'bg-white text-stone-900 shadow-xs dark:bg-[#181F2C] dark:text-slate-100'
+                    : 'text-stone-500 hover:text-stone-800 dark:text-slate-400'
                 }`}
               >
                 {idx.tradingSymbol}
               </button>
             ))}
           </div>
-          <label className="flex cursor-pointer items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-700 dark:border-slate-800 dark:bg-[#0D1119] dark:text-slate-300">
+          <label className="flex cursor-pointer items-center gap-1.5 rounded-lg border border-stone-200 bg-white px-2.5 py-1.5 text-xs font-medium text-stone-700 dark:border-slate-800 dark:bg-[#121721] dark:text-slate-300">
             <input
               type="checkbox"
               checked={debit}
               onChange={(e) => setDebit(e.target.checked)}
-              className="accent-blue-600"
+              className="accent-teal-700 dark:accent-teal-400"
             />
             Debit spread
           </label>
           <button
             type="button"
             onClick={() => void refresh()}
-            className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-50 dark:border-slate-800 dark:bg-[#0D1119] dark:text-slate-200 dark:hover:bg-slate-800"
+            className="rounded-lg border border-stone-200 bg-white px-3 py-1.5 text-xs font-semibold text-stone-700 transition hover:bg-stone-50 dark:border-slate-800 dark:bg-[#121721] dark:text-slate-200 dark:hover:bg-slate-800"
           >
             Refresh
           </button>
@@ -350,7 +350,7 @@ export function StrategyExecution({ onTokenExpired, onCreateOwn, onExecuted }: P
           {Array.from({ length: 5 }).map((_, i) => (
             <div
               key={i}
-              className="h-14 animate-pulse rounded-xl bg-slate-200/70 dark:bg-slate-800/60"
+              className="h-14 animate-pulse rounded-xl bg-stone-200/70 dark:bg-slate-800/60"
             />
           ))}
         </div>
@@ -363,64 +363,64 @@ export function StrategyExecution({ onTokenExpired, onCreateOwn, onExecuted }: P
       )}
 
       {signal && !loading && (
-        <div className="mb-4 grid gap-2.5 rounded-xl border border-slate-200/90 bg-white p-3.5 text-xs shadow-sm sm:grid-cols-2 lg:grid-cols-5 dark:border-slate-800/90 dark:bg-[#0D1119]">
+        <div className="animate-desk-in mb-4 grid gap-2.5 rounded-xl border border-stone-200/90 bg-white p-3.5 text-xs shadow-xs sm:grid-cols-2 lg:grid-cols-5 dark:border-slate-800/90 dark:bg-[#121721]">
           <div>
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-stone-500 dark:text-slate-400">
               Bias
             </p>
             <p
               className={`mt-0.5 text-sm font-bold ${
                 signal.bias === 'SHORT'
-                  ? 'text-rose-600 dark:text-rose-400'
+                  ? 'text-rose-700 dark:text-rose-400'
                   : signal.bias === 'LONG'
-                    ? 'text-emerald-600 dark:text-emerald-400'
-                    : 'text-slate-700 dark:text-slate-200'
+                    ? 'text-emerald-700 dark:text-emerald-400'
+                    : 'text-stone-700 dark:text-slate-200'
               }`}
             >
               {signal.bias}
             </p>
           </div>
           <div>
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-stone-500 dark:text-slate-400">
               Close (75m)
             </p>
-            <p className="mt-0.5 font-num font-semibold text-slate-900 dark:text-slate-100">
+            <p className="mt-0.5 font-num font-semibold text-stone-900 dark:text-slate-100">
               {formatMoney(signal.close)}
             </p>
           </div>
           <div>
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-stone-500 dark:text-slate-400">
               EMA 9
             </p>
-            <p className="mt-0.5 font-num font-semibold text-slate-900 dark:text-slate-100">
+            <p className="mt-0.5 font-num font-semibold text-stone-900 dark:text-slate-100">
               {formatMoney(signal.ema9)}
             </p>
           </div>
           <div>
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-stone-500 dark:text-slate-400">
               Supertrend
             </p>
             <p
               className={`mt-0.5 font-num font-semibold ${
                 signal.supertrendDirection === 'UP'
-                  ? 'text-emerald-600 dark:text-emerald-400'
-                  : 'text-rose-600 dark:text-rose-400'
+                  ? 'text-emerald-700 dark:text-emerald-400'
+                  : 'text-rose-700 dark:text-rose-400'
               }`}
             >
               {formatMoney(signal.supertrend)} ({signal.supertrendDirection})
             </p>
           </div>
           <div className="sm:col-span-2 lg:col-span-1">
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-stone-500 dark:text-slate-400">
               Rule
             </p>
-            <p className="mt-0.5 font-medium text-slate-700 dark:text-slate-200">{signal.reason}</p>
+            <p className="mt-0.5 font-medium text-stone-700 dark:text-slate-200">{signal.reason}</p>
           </div>
         </div>
       )}
 
       {suggestion && suggestion.bias === 'NONE' && (
-        <div className="mb-4 rounded-xl border border-dashed border-slate-200 bg-white px-4 py-6 text-center text-xs text-slate-600 dark:border-slate-800 dark:bg-[#0D1119] dark:text-slate-300">
+        <div className="animate-desk-in mb-4 rounded-xl border border-dashed border-stone-200 bg-white px-4 py-6 text-center text-xs text-stone-600 dark:border-slate-800 dark:bg-[#121721] dark:text-slate-300">
           No entry signal right now. Switch index or wait for the next 75m candle close.
         </div>
       )}
@@ -447,7 +447,7 @@ export function StrategyExecution({ onTokenExpired, onCreateOwn, onExecuted }: P
               onCreateOwn(selectedKey)
             }
           }}
-          className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-50 dark:border-slate-800 dark:bg-[#0D1119] dark:text-slate-200 dark:hover:bg-slate-800"
+          className="w-full rounded-xl border border-stone-200 bg-white px-3 py-2.5 text-xs font-semibold text-stone-700 transition hover:bg-stone-50 dark:border-slate-800 dark:bg-[#121721] dark:text-slate-200 dark:hover:bg-slate-800"
         >
           Open in Strategy Builder →
         </button>

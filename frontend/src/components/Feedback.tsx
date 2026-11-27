@@ -69,22 +69,22 @@ export function FeedbackProvider({ children }: { children: ReactNode }) {
         {toasts.map((item) => {
           const toneStyle =
             item.tone === 'success'
-              ? 'border-emerald-500/30 bg-emerald-950/95 text-emerald-100'
+              ? 'border-teal-700/40 bg-[#121C1D]/95 text-teal-100'
               : item.tone === 'error'
-                ? 'border-rose-500/30 bg-rose-950/95 text-rose-100'
-                : 'border-slate-700/80 bg-slate-900/95 text-slate-100'
+                ? 'border-rose-700/40 bg-[#1E1317]/95 text-rose-100'
+                : 'border-slate-700/80 bg-[#121721]/95 text-slate-100'
           return (
             <div
               key={item.id}
-              className={`pointer-events-auto flex items-center gap-2.5 rounded-xl border px-3.5 py-2.5 text-xs font-medium shadow-xl backdrop-blur-md ${toneStyle}`}
+              className={`animate-modal-pop pointer-events-auto flex items-center gap-2.5 rounded-xl border px-3.5 py-2.5 text-xs font-medium shadow-xl backdrop-blur-md ${toneStyle}`}
             >
               <span
                 className={`h-2 w-2 shrink-0 rounded-full ${
                   item.tone === 'success'
-                    ? 'bg-emerald-400'
+                    ? 'bg-teal-400'
                     : item.tone === 'error'
                       ? 'bg-rose-400'
-                      : 'bg-blue-400'
+                      : 'bg-slate-400'
                 }`}
               />
               <span className="leading-relaxed">{item.message}</span>
@@ -100,18 +100,18 @@ export function FeedbackProvider({ children }: { children: ReactNode }) {
           role="dialog"
           aria-modal="true"
         >
-          <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-5 shadow-2xl dark:border-slate-800 dark:bg-[#0D1119]">
-            <h3 className="text-base font-semibold text-slate-900 dark:text-slate-100">
+          <div className="animate-modal-pop w-full max-w-md rounded-2xl border border-stone-200 bg-white p-5 shadow-2xl dark:border-slate-800 dark:bg-[#121721]">
+            <h3 className="text-base font-semibold text-stone-900 dark:text-slate-100">
               {confirmState.title}
             </h3>
-            <p className="mt-2 whitespace-pre-line text-xs leading-relaxed text-slate-600 dark:text-slate-300">
+            <p className="mt-2 whitespace-pre-line text-xs leading-relaxed text-stone-600 dark:text-slate-300">
               {confirmState.message}
             </p>
             <div className="mt-5 flex items-center justify-end gap-2">
               <button
                 type="button"
                 onClick={() => resolveConfirm(false)}
-                className="rounded-lg border border-slate-200 bg-white px-3.5 py-2 text-xs font-medium text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
+                className="rounded-lg border border-stone-200 bg-white px-3.5 py-2 text-xs font-medium text-stone-700 transition hover:bg-stone-50 dark:border-slate-700 dark:bg-[#171D29] dark:text-slate-200 dark:hover:bg-slate-800"
               >
                 {confirmState.cancelLabel ?? 'Cancel'}
               </button>
@@ -120,8 +120,8 @@ export function FeedbackProvider({ children }: { children: ReactNode }) {
                 onClick={() => resolveConfirm(true)}
                 className={`rounded-lg px-3.5 py-2 text-xs font-semibold text-white transition ${
                   confirmState.tone === 'danger'
-                    ? 'bg-rose-600 hover:bg-rose-500'
-                    : 'bg-blue-600 hover:bg-blue-500'
+                    ? 'bg-rose-700 hover:bg-rose-600'
+                    : 'bg-teal-700 hover:bg-teal-600 dark:bg-teal-600 dark:hover:bg-teal-500'
                 }`}
               >
                 {confirmState.confirmLabel ?? 'Confirm'}

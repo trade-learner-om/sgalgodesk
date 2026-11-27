@@ -119,4 +119,19 @@ public class HttpRoutersConfig {
 						.GET("/{id}/lifecycle", h::lifecycle))
 				.build();
 	}
+
+	@Bean
+	public RouterFunction<ServerResponse> ddsStrategiesRouter(DdsStrategiesHandlers h) {
+		return RouterFunctions.route()
+				.path("/api/dds-strategies", b -> b
+						.GET("", h::list)
+						.POST("", h::create)
+						.PUT("/{id}", h::update)
+						.DELETE("/{id}", h::delete)
+						.POST("/{id}/run", h::run)
+						.POST("/{id}/stop", h::stop)
+						.GET("/{id}/lifecycle", h::lifecycle)
+						.GET("/{id}/history", h::history))
+				.build();
+	}
 }

@@ -358,7 +358,9 @@ export function SpreadPnlChart({ legs, entryAt = null, realised = 0, title, onAu
       wickDownColor: '#f43f5e',
       priceLineVisible: false,
       lastValueVisible: true,
-      autoscaleInfoProvider: (original) => {
+      autoscaleInfoProvider: (
+        original: () => { priceRange: { minValue: number; maxValue: number } | null } | null,
+      ) => {
         const base = original()
         if (base == null || base.priceRange == null) {
           return base
